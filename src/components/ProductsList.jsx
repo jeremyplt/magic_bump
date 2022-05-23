@@ -4,12 +4,35 @@ import {
   Stack,
   Thumbnail,
   Button,
+  Icon,
+  TextContainer,
 } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import React, { useState } from "react";
+import { DeleteMinor } from "@shopify/polaris-icons";
 
 export function ProductsList({ data }) {
   const [open, setOpen] = useState(false);
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [activeProduct, setActiveProduct] = useState();
+  const [selectedUpsell, setSelectedUpsell] = useState({});
+
+  const handleSelection = (resources) => {
+    setOpen(false);
+    selectedUpsell[activeProduct] = {
+      id: resources.selection[0].id,
+      title: resources.selection[0].title,
+    };
+  };
+  const promotedBulkActions = [
+    {
+      content: "Bulk add upsell",
+      onAction: () => {
+        console.log("to do");
+      },
+    },
+  ];
+
   return (
     <React.Fragment>
       <ResourcePicker // Resource picker component
@@ -24,6 +47,9 @@ export function ProductsList({ data }) {
         showHeader
         resourceName={{ singular: "Product", plural: "Products" }}
         items={data.nodes}
+        selectedItems={selectedItems}
+        onSelectionChange={setSelectedItems}
+        promotedBulkActions={promotedBulkActions}
         renderItem={(item) => {
           const media = (
             <Thumbnail
@@ -49,9 +75,43 @@ export function ProductsList({ data }) {
                   <h3>
                     <TextStyle variation="strong">{item.title}</TextStyle>
                   </h3>
+                  <div>{price}</div>
                 </Stack.Item>
-                <Stack.Item></Stack.Item>
-                <Button onClick={() => setOpen(true)}>Add Product Bump</Button>
+                <Stack.Item>
+                  {selectedUpsell[item.id] ? (
+                    <React.Fragment>
+                      <Stack>
+                        <Stack.Item>
+                          <TextContainer>
+                            <h3>
+                              <TextStyle variation="strong">Upsell</TextStyle>
+                            </h3>
+                            {selectedUpsell[item.id].title}
+                          </TextContainer>
+                        </Stack.Item>
+                        <Stack.Item>
+                          <Button
+                            onClick={() => {
+                              delete selectedUpsell[item.id];
+                              setSelectedUpsell({ ...selectedUpsell });
+                            }}
+                          >
+                            <Icon source={DeleteMinor} color="base" />
+                          </Button>
+                        </Stack.Item>
+                      </Stack>
+                    </React.Fragment>
+                  ) : (
+                    <Button
+                      onClick={() => {
+                        setOpen(true);
+                        setActiveProduct(item.id);
+                      }}
+                    >
+                      Add upsell
+                    </Button>
+                  )}
+                </Stack.Item>
               </Stack>
             </ResourceList.Item>
           );

@@ -12,14 +12,17 @@ import { ResourcePicker } from "@shopify/app-bridge-react";
 
 const img = "https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg";
 
-export function EmptyStatePage({ setSelection, setPageType }) {
+export function EmptyStatePage({ setSelection, setPageType, setEmptyPage }) {
   const [openProduct, setOpenProduct] = useState(false);
   const [openCollection, setOpenCollection] = useState(false);
+  const [showBanner, setShowBanner] = useState(true);
   const handleSelection = (resources) => {
     setOpenProduct(false);
     setOpenCollection(false);
+    // console.log(resources);
     setSelection(resources.selection.map((product) => product.id));
   };
+
   return (
     <Page>
       {openProduct && (
@@ -89,6 +92,7 @@ export function EmptyStatePage({ setSelection, setPageType }) {
                 action={{
                   content: "Select all products",
                   onAction: () => {
+                    setEmptyPage(false);
                     setPageType("product");
                   },
                 }}
@@ -130,19 +134,20 @@ export function EmptyStatePage({ setSelection, setPageType }) {
               <List.Item>Place the section on your product page</List.Item>
             </List>
           </Layout.Section>
-
-          <Layout.Section>
-            <Banner
-              title="Increase you conversion rate"
-              onDismiss={() => {}}
-              status="info"
-            >
-              <p>
-                We suggest to add the bump section just above the call to action
-                button of your product page.
-              </p>
-            </Banner>
-          </Layout.Section>
+          {showBanner && (
+            <Layout.Section>
+              <Banner
+                title="Increase you conversion rate"
+                onDismiss={() => setShowBanner(false)}
+                status="info"
+              >
+                <p>
+                  We suggest to add the bump section just above the call to
+                  action button of your product page.
+                </p>
+              </Banner>
+            </Layout.Section>
+          )}
         </Layout>
       </Card>
     </Page>
