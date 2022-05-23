@@ -1,5 +1,14 @@
 import { gql, useQuery } from "@apollo/client";
-import { Page, Layout, Banner, Card } from "@shopify/polaris";
+import {
+  Page,
+  Layout,
+  Banner,
+  Card,
+  Button,
+  Icon,
+  TextContainer,
+  Stack,
+} from "@shopify/polaris";
 import { Loading } from "@shopify/app-bridge-react";
 import { ProductsList } from "./ProductsList";
 // GraphQL query to retrieve products by IDs.
@@ -35,28 +44,48 @@ const GET_PRODUCTS_BY_ID = gql`
   }
 `;
 
+const GET_ALL_PRODUCTS_BY_ID = gql`
+  query getAllProduct {
+    products(first: 20) {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+`;
+
 export function ProductsPage({ itemIds }) {
+  const {
+    loading: allLoading,
+    error: allError,
+    data: allData,
+    refetch: allRefetch,
+  } = useQuery(GET_ALL_PRODUCTS_BY_ID, {
+    skip: itemIds.length > 0,
+  });
+
+  if (allData)
+    allData.products.edges.forEach((product) => {
+      itemIds.push(product.node.id);
+    });
+
   const { loading, error, data, refetch } = useQuery(GET_PRODUCTS_BY_ID, {
+    skip: itemIds.length === 0,
     variables: { ids: itemIds },
   });
-  if (loading) return <Loading />;
 
-  if (error) {
+  if (loading || allLoading) return <Loading />;
+
+  if (error || allError) {
     console.warn(error);
     return (
       <Banner status="critical">There was an issue loading products.</Banner>
     );
   }
 
-  return (
-    <Page>
-      <Layout>
-        <Layout.Section>
-          <Card>
-            <ProductsList data={data} />
-          </Card>
-        </Layout.Section>
-      </Layout>
-    </Page>
-  );
+  if (data) {
+    return <ProductsList data={data} />;
+  }
 }
