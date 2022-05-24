@@ -16,7 +16,9 @@ import translations from "@shopify/polaris/locales/en.json";
 import "@shopify/polaris/build/esm/styles.css";
 
 import { EmptyStatePage } from "./components/EmptyStatePage";
+import Routers from "./components/Routers";
 import ResultPage from "./components/ResultPage";
+import Upsell from "./components/Upsell";
 
 export default function App() {
   const [selection, setSelection] = useState([]);
@@ -32,7 +34,14 @@ export default function App() {
         }}
       >
         <MyProvider>
-          {selection.length > 0 || emptyPage === false ? (
+          <Routers
+            pageType={pageType}
+            itemIds={selection}
+            setEmptyPage={setEmptyPage}
+            setSelection={setSelection}
+            setPageType={setPageType}
+          />
+          {/* {selection.length > 0 || emptyPage === false ? (
             <ResultPage
               pageType={pageType}
               itemIds={selection}
@@ -45,7 +54,7 @@ export default function App() {
               setPageType={setPageType}
               setEmptyPage={setEmptyPage}
             />
-          )}
+          )} */}
         </MyProvider>
       </AppBridgeProvider>
     </PolarisProvider>

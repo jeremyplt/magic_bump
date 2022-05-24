@@ -5,13 +5,10 @@ import {
   Page,
   Layout,
   Card,
-  Stack,
-  Button,
-  Icon,
+  PageActions,
   Banner,
   List,
 } from "@shopify/polaris";
-import { ArrowLeftMinor } from "@shopify/polaris-icons";
 
 const ResultPage = (props) => {
   const [showBanner, setShowBanner] = useState(true);
@@ -22,20 +19,16 @@ const ResultPage = (props) => {
   };
 
   return (
-    <Page>
+    <Page
+      fullWidth
+      breadcrumbs={[{ content: "Home", onAction: resetEmptyPage }]}
+      primaryAction={{ content: "Save", disabled: true }}
+      title="Upsell setup"
+      pagination={{
+        hasNext: true,
+      }}
+    >
       <Layout>
-        <Layout.Section>
-          <Stack>
-            <Stack.Item fill>
-              <Button onClick={() => resetEmptyPage()}>
-                <Icon source={ArrowLeftMinor} color="base" />
-              </Button>
-            </Stack.Item>
-            <Stack.Item>
-              <Button primary>Save</Button>
-            </Stack.Item>
-          </Stack>
-        </Layout.Section>
         {showBanner && (
           <Layout.Section>
             <Banner
@@ -75,10 +68,12 @@ const ResultPage = (props) => {
             )}
           </Card>
         </Layout.Section>
-        <Layout.Section>
-          <Button primary>Save</Button>
-        </Layout.Section>
       </Layout>
+      <PageActions
+        primaryAction={{
+          content: "Save",
+        }}
+      />
     </Page>
   );
 };

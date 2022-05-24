@@ -1,13 +1,5 @@
 import { useState } from "react";
-import {
-  Page,
-  Layout,
-  EmptyState,
-  Card,
-  List,
-  Banner,
-  TextContainer,
-} from "@shopify/polaris";
+import { Page, Layout, EmptyState, Card, List, Banner } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 
 const img = "https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg";
@@ -24,7 +16,7 @@ export function EmptyStatePage({ setSelection, setPageType, setEmptyPage }) {
   };
 
   return (
-    <Page>
+    <Page fullWidth>
       {openProduct && (
         <ResourcePicker // Resource picker component
           resourceType="Product"

@@ -19,16 +19,28 @@ export function ProductsList({ data }) {
 
   const handleSelection = (resources) => {
     setOpen(false);
-    selectedUpsell[activeProduct] = {
-      id: resources.selection[0].id,
-      title: resources.selection[0].title,
-    };
+    if (activeProduct) {
+      selectedUpsell[activeProduct] = {
+        id: resources.selection[0].id,
+        title: resources.selection[0].title,
+      };
+      setActiveProduct("");
+    } else if (selectedItems.length > 0) {
+      console.log("test");
+      selectedItems.forEach((item) => {
+        selectedUpsell[item] = {
+          id: resources.selection[0].id,
+          title: resources.selection[0].title,
+        };
+        setSelectedItems([]);
+      });
+    }
   };
   const promotedBulkActions = [
     {
       content: "Bulk add upsell",
       onAction: () => {
-        console.log("to do");
+        setOpen(true);
       },
     },
   ];
@@ -39,6 +51,7 @@ export function ProductsList({ data }) {
         resourceType="Product"
         showVariants={false}
         open={open}
+        selectMultiple={false}
         actionVerb={ResourcePicker.ActionVerb.Select}
         onSelection={(resources) => handleSelection(resources)}
         onCancel={() => setOpen(false)}
