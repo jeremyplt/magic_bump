@@ -9,13 +9,14 @@ import {
   Banner,
   List,
 } from "@shopify/polaris";
+import { useHistory } from "react-router-dom";
 
-const ResultPage = (props) => {
+const ResultPage = ({ pageType, itemIds, setSelection }) => {
   const [showBanner, setShowBanner] = useState(true);
-  const { pageType, itemIds, setEmptyPage, setSelection } = props;
+  const history = useHistory();
   const resetEmptyPage = () => {
-    setEmptyPage(true);
     setSelection([]);
+    history.goBack();
   };
 
   return (

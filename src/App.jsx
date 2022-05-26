@@ -23,7 +23,6 @@ import Upsell from "./components/Upsell";
 export default function App() {
   const [selection, setSelection] = useState([]);
   const [pageType, setPageType] = useState("");
-  const [emptyPage, setEmptyPage] = useState(true);
   return (
     <PolarisProvider i18n={translations}>
       <AppBridgeProvider
@@ -37,24 +36,9 @@ export default function App() {
           <Routers
             pageType={pageType}
             itemIds={selection}
-            setEmptyPage={setEmptyPage}
             setSelection={setSelection}
             setPageType={setPageType}
           />
-          {/* {selection.length > 0 || emptyPage === false ? (
-            <ResultPage
-              pageType={pageType}
-              itemIds={selection}
-              setEmptyPage={setEmptyPage}
-              setSelection={setSelection}
-            />
-          ) : (
-            <EmptyStatePage
-              setSelection={setSelection}
-              setPageType={setPageType}
-              setEmptyPage={setEmptyPage}
-            />
-          )} */}
         </MyProvider>
       </AppBridgeProvider>
     </PolarisProvider>
