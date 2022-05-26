@@ -1,19 +1,21 @@
 import { useState } from "react";
 import { Page, Layout, EmptyState, Card, List, Banner } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
+import { useHistory } from "react-router-dom";
 
 const img = "https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg";
 
-export function EmptyStatePage({ setSelection, setPageType, setEmptyPage }) {
+export function EmptyStatePage({ setSelection, setPageType }) {
   const [openProduct, setOpenProduct] = useState(false);
   const [openCollection, setOpenCollection] = useState(false);
   const [showBanner, setShowBanner] = useState(true);
   const handleSelection = (resources) => {
+    history.push("/results");
     setOpenProduct(false);
     setOpenCollection(false);
-    // console.log(resources);
     setSelection(resources.selection.map((product) => product.id));
   };
+  const history = useHistory();
 
   return (
     <Page fullWidth>
@@ -53,6 +55,7 @@ export function EmptyStatePage({ setSelection, setPageType, setEmptyPage }) {
                   content: "Select products",
                   onAction: () => {
                     setOpenProduct(true);
+                    setSelection([]);
                     setPageType("product");
                   },
                 }}
@@ -69,6 +72,7 @@ export function EmptyStatePage({ setSelection, setPageType, setEmptyPage }) {
                   content: "Select collections",
                   onAction: () => {
                     setOpenCollection(true);
+                    setSelection([]);
                     setPageType("collection");
                   },
                 }}
@@ -84,8 +88,9 @@ export function EmptyStatePage({ setSelection, setPageType, setEmptyPage }) {
                 action={{
                   content: "Select all products",
                   onAction: () => {
-                    setEmptyPage(false);
+                    setSelection([]);
                     setPageType("product");
+                    history.push("/results");
                   },
                 }}
                 image={img}

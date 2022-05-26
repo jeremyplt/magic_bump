@@ -1,42 +1,30 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
-import { EmptyStatePage } from "./EmptyStatePage";
+import { Switch, Route, withRouter } from "react-router";
+import { ClientRouter, RoutePropagator } from "@shopify/app-bridge-react";
+import Upsell from "./Upsell";
 import ResultPage from "./ResultPage";
+import HomePage from "./HomePage";
 
-export default function Routers({
-  pageType,
-  itemIds,
-  setEmptyPage,
-  setSelection,
-  setPageType,
-}) {
+function Routers(props) {
+  const { history, location } = props;
+
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-          <EmptyStatePage
-            setSelection={setSelection}
-            setPageType={setPageType}
-            setEmptyPage={setEmptyPage}
-          />
-        }
-      />
-      <Route
-        path="/results"
-        element={
-          <ResultPage
-            pageType={pageType}
-            itemIds={itemIds}
-            setEmptyPage={setEmptyPage}
-            setSelection={setSelection}
-          />
-        }
-      />
-      {/* <Route path="/upsells" element={<Upsell />} />
-      <Route path="/design" element={<Design />} />
-      <Route path="/analytics" element={<Analytics />} />
-      <Route path="/help" element={<Help />} /> */}
-    </Routes>
+    <>
+      <ClientRouter history={history} />
+      <RoutePropagator location={location} />
+      <Switch>
+        <Route path="/upsells">
+          <Upsell />
+        </Route>
+        <Route path="/results">
+          <ResultPage {...props} />
+        </Route>
+        <Route path="/">
+          <HomePage {...props} />
+        </Route>
+      </Switch>
+    </>
   );
 }
+
+export default withRouter(Routers);
