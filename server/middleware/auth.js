@@ -1,6 +1,7 @@
 import { Shopify } from "@shopify/shopify-api";
 
 import topLevelAuthRedirect from "../helpers/top-level-auth-redirect.js";
+import ShopModel from "../models/ShopModel.js";
 
 export default function applyAuthMiddleware(app) {
   app.get("/auth", async (req, res) => {
@@ -52,6 +53,24 @@ export default function applyAuthMiddleware(app) {
           [session.shop]: session.scope,
         })
       );
+
+      const shop = await ShopModel.findOne({ url: session.shop });
+
+      if (shop === null) {
+        ShopModel.create({
+          url: session.shop,
+          accessToken: session.accessToken,
+          supportEmail: session.onlineAccessInfo.associated_user.email,
+          scope: session.scope,
+        });
+      } else {
+        ShopModel.findOneAndUpdate(
+          { url: session.shop },
+          {
+            accessToken: session.accessToken,
+          }
+        );
+      }
 
       const response = await Shopify.Webhooks.Registry.register({
         shop: session.shop,

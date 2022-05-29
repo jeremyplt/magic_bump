@@ -9,20 +9,18 @@ import {
   useAppBridge,
 } from "@shopify/app-bridge-react";
 import { useState } from "react";
-import { authenticatedFetch } from "@shopify/app-bridge-utils";
+import { authenticatedFetch, getSessionToken } from "@shopify/app-bridge-utils";
 import { Redirect } from "@shopify/app-bridge/actions";
 import { AppProvider as PolarisProvider } from "@shopify/polaris";
 import translations from "@shopify/polaris/locales/en.json";
 import "@shopify/polaris/build/esm/styles.css";
 
-import { EmptyStatePage } from "./components/EmptyStatePage";
 import Routers from "./components/Routers";
-import ResultPage from "./components/ResultPage";
-import Upsell from "./components/Upsell";
 
 export default function App() {
   const [selection, setSelection] = useState([]);
   const [pageType, setPageType] = useState("");
+
   return (
     <PolarisProvider i18n={translations}>
       <AppBridgeProvider
@@ -47,7 +45,6 @@ export default function App() {
 
 function MyProvider({ children }) {
   const app = useAppBridge();
-
   const client = new ApolloClient({
     cache: new InMemoryCache(),
     link: new HttpLink({

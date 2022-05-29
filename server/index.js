@@ -7,12 +7,33 @@ import "dotenv/config";
 
 import applyAuthMiddleware from "./middleware/auth.js";
 import verifyRequest from "./middleware/verify-request.js";
-
+import cors from "cors";
+import shopsRoutes from "./routes/shopsRoutes.js";
+import connectDB from "./config/db.js";
+import { urlencoded } from "express";
+import errorHandler from "./middleware/error.js";
+import sessionStorage from "../utils/sessionStorage.js";
 const USE_ONLINE_TOKENS = true;
 const TOP_LEVEL_OAUTH_COOKIE = "shopify_top_level_oauth";
 
 const PORT = parseInt(process.env.PORT || "8081", 10);
 const isTest = process.env.NODE_ENV === "test" || !!process.env.VITE_TEST_BUILD;
+const dbPort = process.env.DB_PORT;
+
+// Connection to the database and start the web server
+connectDB();
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+app.use(urlencoded({ extended: false }));
+app.use("/api/shops", shopsRoutes);
+app.use("*", (req, res) => res.status(404).json({ error: "not found." }));
+
+app.use(errorHandler);
+
+app.listen(dbPort, () => console.log(`Server started on port ${dbPort}`));
 
 Shopify.Context.initialize({
   API_KEY: process.env.SHOPIFY_API_KEY,
@@ -22,7 +43,7 @@ Shopify.Context.initialize({
   API_VERSION: ApiVersion.April22,
   IS_EMBEDDED_APP: true,
   // This should be replaced with your preferred storage strategy
-  SESSION_STORAGE: new Shopify.Session.MemorySessionStorage(),
+  SESSION_STORAGE: sessionStorage,
 });
 
 // Storing the currently active shops in memory will force them to re-login when your server restarts. You should
@@ -82,6 +103,7 @@ export async function createServer(
 
   app.use((req, res, next) => {
     const shop = req.query.shop;
+
     if (Shopify.Context.IS_EMBEDDED_APP && shop) {
       res.setHeader(
         "Content-Security-Policy",
