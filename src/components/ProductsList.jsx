@@ -26,7 +26,6 @@ export function ProductsList({ data }) {
       };
       setActiveProduct("");
     } else if (selectedItems.length > 0) {
-      console.log("test");
       selectedItems.forEach((item) => {
         selectedUpsell[item] = {
           id: resources.selection[0].id,
