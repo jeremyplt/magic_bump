@@ -20,16 +20,19 @@ const getShopByUrl = expressAsyncHandler(async (req, res) => {
 // @desc set shops
 // @route POST /api/shops
 // @access Private
-const setShops = expressAsyncHandler(async (req, res) => {
-  if (!req.body.text) {
-    res.status(400);
-    throw new Error("Please add a text");
-  }
-  res.status(200).json({ message: "Set shops" });
+const setShop = expressAsyncHandler(async (req, res) => {
+  const shop = req.body;
+  await ShopModel.create({
+    url: shop.url,
+    accessToken: shop.accessToken || null,
+    supportEmail: shop.supportEmail || null,
+    scope: shop.scope || null,
+  });
+  res.sendStatus(200).json(shop);
 });
 
 // @desc update shop
-// @route PUT /api/shops/:id
+// @route PUT /api/shops/:url
 // @access Private
 const updateShop = expressAsyncHandler(async (req, res) => {
   res.status(200).json({ message: `Update shops ${req.params.id}` });
@@ -39,7 +42,9 @@ const updateShop = expressAsyncHandler(async (req, res) => {
 // @route DELETE /api/shops
 // @access Private
 const deleteShop = expressAsyncHandler(async (req, res) => {
+  const url = req.params.url;
+  await ShopModel.deleteOne({ url });
   res.status(200).json({ message: `Delete shop ${req.params.id}` });
 });
 
-export { getShops, getShopByUrl, setShops, updateShop, deleteShop };
+export { getShops, getShopByUrl, setShop, updateShop, deleteShop };
