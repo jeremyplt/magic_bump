@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { ProductsPage } from "./ProductsPage";
 import { CollectionsPage } from "./CollectionsPage";
 import {
@@ -10,15 +10,17 @@ import {
   List,
 } from "@shopify/polaris";
 import { useHistory } from "react-router-dom";
-import ProductsListContext from "../Context.js";
+import { EmptyPageContext, ProductsListContext } from "../Context.js";
 
-const ResultPage = ({ pageType, itemIds, setSelection }) => {
+const ResultPage = () => {
   const [showBanner, setShowBanner] = useState(true);
   const [selectedItems, setSelectedItems] = useState([]);
   const [activeProduct, setActiveProduct] = useState();
   const [selectedUpsell, setSelectedUpsell] = useState({});
 
-  const contextProps = {
+  const { pageType, setSelection, selection } = useContext(EmptyPageContext);
+
+  const productsListProps = {
     selectedItems,
     setSelectedItems,
     activeProduct,
@@ -76,12 +78,8 @@ const ResultPage = ({ pageType, itemIds, setSelection }) => {
 
         <Layout.Section>
           <Card>
-            <ProductsListContext.Provider value={{ ...contextProps }}>
-              {pageType === "product" ? (
-                <ProductsPage itemIds={itemIds} />
-              ) : (
-                <CollectionsPage itemIds={itemIds} />
-              )}
+            <ProductsListContext.Provider value={{ ...productsListProps }}>
+              {pageType === "product" ? <ProductsPage /> : <CollectionsPage />}
             </ProductsListContext.Provider>
           </Card>
         </Layout.Section>

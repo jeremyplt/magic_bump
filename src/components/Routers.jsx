@@ -17,10 +17,10 @@ function Routers(props) {
           <Upsell />
         </Route>
         <Route path="/results">
-          <ResultPage {...props} />
+          <ResultPage />
         </Route>
         <Route path="/">
-          <HomePage {...props} />
+          <HomePage />
         </Route>
       </Switch>
     </>

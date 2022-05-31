@@ -1,14 +1,18 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Page, Layout, EmptyState, Card, List, Banner } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import { useHistory } from "react-router-dom";
+import { EmptyPageContext } from "../Context";
 
 const img = "https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg";
 
-export function EmptyStatePage({ setSelection, setPageType }) {
+export function EmptyStatePage() {
   const [openProduct, setOpenProduct] = useState(false);
   const [openCollection, setOpenCollection] = useState(false);
   const [showBanner, setShowBanner] = useState(true);
+
+  const { setSelection, setPageType } = useContext(EmptyPageContext);
+
   const handleSelection = (resources) => {
     history.push("/results");
     setOpenProduct(false);

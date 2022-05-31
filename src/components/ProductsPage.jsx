@@ -9,8 +9,10 @@ import {
   TextContainer,
   Stack,
 } from "@shopify/polaris";
+import { useContext } from "react";
 import { Loading } from "@shopify/app-bridge-react";
 import { ProductsList } from "./ProductsList";
+import { EmptyPageContext } from "../Context";
 // GraphQL query to retrieve products by IDs.
 // The price field belongs to the variants object because
 // product variants can have different prices.
@@ -56,24 +58,25 @@ const GET_ALL_PRODUCTS_BY_ID = gql`
   }
 `;
 
-export function ProductsPage({ itemIds }) {
+export function ProductsPage() {
+  const { selection } = useContext(EmptyPageContext);
   const {
     loading: allLoading,
     error: allError,
     data: allData,
     refetch: allRefetch,
   } = useQuery(GET_ALL_PRODUCTS_BY_ID, {
-    skip: itemIds.length > 0,
+    skip: selection.length > 0,
   });
 
   if (allData)
     allData.products.edges.forEach((product) => {
-      itemIds.push(product.node.id);
+      selection.push(product.node.id);
     });
 
   const { loading, error, data, refetch } = useQuery(GET_PRODUCTS_BY_ID, {
-    skip: itemIds.length === 0,
-    variables: { ids: itemIds },
+    skip: selection.length === 0,
+    variables: { ids: selection },
   });
 
   if (loading || allLoading) return <Loading />;
