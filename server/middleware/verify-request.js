@@ -22,9 +22,21 @@ export default function verifyRequest(app, { returnHeader = true } = {}) {
       return res.redirect(`/auth?shop=${shop}`);
     }
 
-    if (session?.isActive()) {
+    //session.isActive() doesn't work when using Redis, MongoDB or other forms of custom session storage. Replace it.
+    const isSessionActive = (session) => {
+      if (!session) {
+        return false;
+      } else {
+        return (
+          Shopify.Context.SCOPES.equals(session.scope) &&
+          session.accessToken &&
+          (!session.expires || session.expires >= new Date())
+        );
+      }
+    };
+
+    if (isSessionActive(session)) {
       try {
-        // make a request to make sure oauth has succeeded, retry otherwise
         const client = new Shopify.Clients.Graphql(
           session.shop,
           session.accessToken
@@ -36,7 +48,6 @@ export default function verifyRequest(app, { returnHeader = true } = {}) {
           e instanceof Shopify.Errors.HttpResponseError &&
           e.response.code === 401
         ) {
-          // We only want to catch 401s here, anything else should bubble up
         } else {
           throw e;
         }

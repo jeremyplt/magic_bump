@@ -14,6 +14,7 @@ export function EmptyStatePage({ setSelection, setPageType }) {
     setOpenProduct(false);
     setOpenCollection(false);
     setSelection(resources.selection.map((product) => product.id));
+    console.log(resources.selection);
   };
   const history = useHistory();
 

@@ -10,9 +10,23 @@ import {
   List,
 } from "@shopify/polaris";
 import { useHistory } from "react-router-dom";
+import ProductsListContext from "../Context.js";
 
 const ResultPage = ({ pageType, itemIds, setSelection }) => {
   const [showBanner, setShowBanner] = useState(true);
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [activeProduct, setActiveProduct] = useState();
+  const [selectedUpsell, setSelectedUpsell] = useState({});
+
+  const contextProps = {
+    selectedItems,
+    setSelectedItems,
+    activeProduct,
+    setActiveProduct,
+    selectedUpsell,
+    setSelectedUpsell,
+  };
+
   const history = useHistory();
   const resetEmptyPage = () => {
     setSelection([]);
@@ -62,11 +76,13 @@ const ResultPage = ({ pageType, itemIds, setSelection }) => {
 
         <Layout.Section>
           <Card>
-            {pageType === "product" ? (
-              <ProductsPage itemIds={itemIds} />
-            ) : (
-              <CollectionsPage itemIds={itemIds} />
-            )}
+            <ProductsListContext.Provider value={{ ...contextProps }}>
+              {pageType === "product" ? (
+                <ProductsPage itemIds={itemIds} />
+              ) : (
+                <CollectionsPage itemIds={itemIds} />
+              )}
+            </ProductsListContext.Provider>
           </Card>
         </Layout.Section>
       </Layout>

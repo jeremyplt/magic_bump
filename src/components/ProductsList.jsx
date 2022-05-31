@@ -8,14 +8,20 @@ import {
   TextContainer,
 } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { DeleteMinor } from "@shopify/polaris-icons";
+import ProductsListContext from "../Context";
 
 export function ProductsList({ data }) {
   const [open, setOpen] = useState(false);
-  const [selectedItems, setSelectedItems] = useState([]);
-  const [activeProduct, setActiveProduct] = useState();
-  const [selectedUpsell, setSelectedUpsell] = useState({});
+  const {
+    selectedItems,
+    setSelectedItems,
+    activeProduct,
+    setActiveProduct,
+    selectedUpsell,
+    setSelectedUpsell,
+  } = useContext(ProductsListContext);
 
   const handleSelection = (resources) => {
     setOpen(false);
