@@ -15,11 +15,20 @@ import { AppProvider as PolarisProvider } from "@shopify/polaris";
 import translations from "@shopify/polaris/locales/en.json";
 import "@shopify/polaris/build/esm/styles.css";
 
+import { EmptyPageContext } from "./Context";
+
 import Routers from "./components/Routers";
 
 export default function App() {
   const [selection, setSelection] = useState([]);
   const [pageType, setPageType] = useState("");
+
+  const emptyPageProps = {
+    selection,
+    setSelection,
+    pageType,
+    setPageType,
+  };
 
   return (
     <PolarisProvider i18n={translations}>
@@ -31,12 +40,9 @@ export default function App() {
         }}
       >
         <MyProvider>
-          <Routers
-            pageType={pageType}
-            itemIds={selection}
-            setSelection={setSelection}
-            setPageType={setPageType}
-          />
+          <EmptyPageContext.Provider value={{ ...emptyPageProps }}>
+            <Routers />
+          </EmptyPageContext.Provider>
         </MyProvider>
       </AppBridgeProvider>
     </PolarisProvider>

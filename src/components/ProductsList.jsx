@@ -10,7 +10,7 @@ import {
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import React, { useState, useContext } from "react";
 import { DeleteMinor } from "@shopify/polaris-icons";
-import ProductsListContext from "../Context";
+import { ProductsListContext } from "../Context";
 
 export function ProductsList({ data }) {
   const [open, setOpen] = useState(false);
