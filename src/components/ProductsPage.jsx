@@ -1,18 +1,9 @@
 import { gql, useQuery } from "@apollo/client";
-import {
-  Page,
-  Layout,
-  Banner,
-  Card,
-  Button,
-  Icon,
-  TextContainer,
-  Stack,
-} from "@shopify/polaris";
+import { Banner } from "@shopify/polaris";
 import { useContext } from "react";
 import { Loading } from "@shopify/app-bridge-react";
 import { ProductsList } from "./ProductsList";
-import { EmptyPageContext } from "../Context";
+import { GlobalContext } from "../Context";
 // GraphQL query to retrieve products by IDs.
 // The price field belongs to the variants object because
 // product variants can have different prices.
@@ -59,7 +50,7 @@ const GET_ALL_PRODUCTS_BY_ID = gql`
 `;
 
 export function ProductsPage() {
-  const { selection } = useContext(EmptyPageContext);
+  const { selection } = useContext(GlobalContext);
   const {
     loading: allLoading,
     error: allError,

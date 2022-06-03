@@ -9,16 +9,18 @@ import applyAuthMiddleware from "./middleware/auth.js";
 import verifyRequest from "./middleware/verify-request.js";
 import cors from "cors";
 import shopsRoutes from "./routes/shopsRoutes.js";
+import upsellsRoutes from "./routes/upsellsRoutes.js";
 import connectDB from "./config/db.js";
 import { urlencoded } from "express";
 import errorHandler from "./middleware/error.js";
 import sessionStorage from "../utils/sessionStorage.js";
+
 const USE_ONLINE_TOKENS = true;
 const TOP_LEVEL_OAUTH_COOKIE = "shopify_top_level_oauth";
 
 const PORT = parseInt(process.env.PORT || "8081", 10);
 const isTest = process.env.NODE_ENV === "test" || !!process.env.VITE_TEST_BUILD;
-const dbPort = process.env.DB_PORT;
+const dbPort = parseInt(process.env.DB_PORT);
 
 // Connection to the database and start the web server
 connectDB();
@@ -29,6 +31,7 @@ app.use(cors());
 app.use(express.json());
 app.use(urlencoded({ extended: false }));
 app.use("/api/shops", shopsRoutes);
+app.use("/api/upsells", upsellsRoutes);
 app.use("*", (req, res) => res.status(404).json({ error: "not found." }));
 
 app.use(errorHandler);

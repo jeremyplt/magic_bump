@@ -1,4 +1,3 @@
-import React, { useEffect } from "react";
 import { EmptyStatePage } from "./EmptyStatePage";
 
 export default function HomePage(props) {
