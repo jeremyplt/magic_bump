@@ -54,23 +54,16 @@ export default function applyAuthMiddleware(app) {
         })
       );
 
-      const shop = await ShopModel.findOne({ url: session.shop });
-
-      if (shop === null) {
-        ShopModel.create({
-          url: session.shop,
+      await ShopModel.findOneAndUpdate(
+        { myshopifyDomain: session.shop },
+        {
+          myshopifyDomain: session.shop,
           accessToken: session.accessToken,
           supportEmail: session.onlineAccessInfo.associated_user.email,
           scope: session.scope,
-        });
-      } else {
-        ShopModel.findOneAndUpdate(
-          { url: session.shop },
-          {
-            accessToken: session.accessToken,
-          }
-        );
-      }
+        },
+        { upsert: true, setDefaultsOnInsert: true, returnNewDocument: true }
+      );
 
       const response = await Shopify.Webhooks.Registry.register({
         shop: session.shop,

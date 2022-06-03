@@ -9,8 +9,8 @@ import {
   Banner,
   List,
 } from "@shopify/polaris";
-import { useHistory } from "react-router-dom";
-import { EmptyPageContext, ProductsListContext } from "../Context.js";
+import { GlobalContext, ProductsListContext } from "../Context.js";
+import { addUpsell } from "../services/UpsellService";
 
 const ResultPage = () => {
   const [showBanner, setShowBanner] = useState(true);
@@ -18,7 +18,16 @@ const ResultPage = () => {
   const [activeProduct, setActiveProduct] = useState();
   const [selectedUpsell, setSelectedUpsell] = useState({});
 
-  const { pageType, setSelection, selection } = useContext(EmptyPageContext);
+  const {
+    pageType,
+    setSelection,
+    selection,
+    shopUrl,
+    shopUpsells,
+    setShopUpsells,
+    history,
+    resetEmptyPage,
+  } = useContext(GlobalContext);
 
   const productsListProps = {
     selectedItems,
@@ -29,17 +38,20 @@ const ResultPage = () => {
     setSelectedUpsell,
   };
 
-  const history = useHistory();
-  const resetEmptyPage = () => {
-    setSelection([]);
-    history.goBack();
+  let isDisabled = Object.keys(selectedUpsell).length > 0 ? false : true;
+
+  const saveUpsells = () => {
+    for (const key in selectedUpsell) {
+      addUpsell(shopUrl, key, selectedUpsell[key]);
+    }
+    history.push("/");
   };
 
   return (
     <Page
       fullWidth
       breadcrumbs={[{ content: "Home", onAction: resetEmptyPage }]}
-      primaryAction={{ content: "Save", disabled: true }}
+      primaryAction={{ content: "Save", disabled: isDisabled }}
       title="Upsell setup"
       pagination={{
         hasNext: true,
@@ -87,6 +99,8 @@ const ResultPage = () => {
       <PageActions
         primaryAction={{
           content: "Save",
+          disabled: isDisabled,
+          onAction: () => saveUpsells(),
         }}
       />
     </Page>

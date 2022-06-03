@@ -27,15 +27,15 @@ export function ProductsList({ data }) {
     setOpen(false);
     if (activeProduct) {
       selectedUpsell[activeProduct] = {
-        id: resources.selection[0].id,
-        title: resources.selection[0].title,
+        productId: resources.selection[0].id,
+        productTitle: resources.selection[0].title,
       };
       setActiveProduct("");
     } else if (selectedItems.length > 0) {
       selectedItems.forEach((item) => {
         selectedUpsell[item] = {
-          id: resources.selection[0].id,
-          title: resources.selection[0].title,
+          productId: resources.selection[0].id,
+          productTitle: resources.selection[0].title,
         };
         setSelectedItems([]);
       });

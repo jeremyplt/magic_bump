@@ -2,6 +2,7 @@ import express from "express";
 import {
   getShops,
   getShopByUrl,
+  getShopById,
   setShop,
   updateShop,
   deleteShop,
@@ -11,6 +12,7 @@ const router = express.Router();
 
 router.route("/").get(getShops).post(setShop);
 
-router.route("/:url").get(getShopByUrl).put(updateShop).delete(deleteShop);
+// Rooter by URL
+router.route("/:url").get(getShopByUrl).patch(updateShop).delete(deleteShop);
 
 export default router;

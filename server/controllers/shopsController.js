@@ -17,6 +17,14 @@ const getShopByUrl = expressAsyncHandler(async (req, res) => {
   res.status(200).json(shop);
 });
 
+// @desc get shops by url
+// @route GET /api/shops/:id
+// @access Private
+const getShopById = expressAsyncHandler(async (req, res) => {
+  const shop = await ShopModel.findOne({ id: req.params.id });
+  res.status(200).json(shop);
+});
+
 // @desc set shops
 // @route POST /api/shops
 // @access Private
@@ -32,10 +40,14 @@ const setShop = expressAsyncHandler(async (req, res) => {
 });
 
 // @desc update shop
-// @route PUT /api/shops/:url
+// @route PATCH /api/shops/:url
 // @access Private
 const updateShop = expressAsyncHandler(async (req, res) => {
-  res.status(200).json({ message: `Update shops ${req.params.id}` });
+  await ShopModel.findOneAndUpdate(
+    { myshopifyDomain: req.params.url },
+    { ...req.body }
+  );
+  res.status(200).json(req.body);
 });
 
 // @desc delete shop
@@ -47,4 +59,4 @@ const deleteShop = expressAsyncHandler(async (req, res) => {
   res.status(200).json({ message: `Delete shop ${req.params.id}` });
 });
 
-export { getShops, getShopByUrl, setShop, updateShop, deleteShop };
+export { getShops, getShopByUrl, setShop, updateShop, deleteShop, getShopById };
