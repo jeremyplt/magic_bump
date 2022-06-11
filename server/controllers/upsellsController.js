@@ -16,9 +16,9 @@ const getUpsellsByShop = expressAsyncHandler(async (req, res) => {
 });
 
 // @desc set shops
-// @route POST /api/upsells/:shopId
+// @route POST /api/upsells/product
 // @access Private
-const setUpsell = expressAsyncHandler(async (req, res) => {
+const setUpsellOnProduct = expressAsyncHandler(async (req, res) => {
   const item = req.body;
   const data = {
     myshopifyDomain: item.myshopifyDomain,
@@ -39,4 +39,30 @@ const setUpsell = expressAsyncHandler(async (req, res) => {
   res.sendStatus(200).json(item);
 });
 
-export { getUpsells, getUpsellsByShop, setUpsell };
+const setUpsellOnCollection = expressAsyncHandler(async (req, res) => {
+  const item = req.body;
+  const data = {
+    myshopifyDomain: item.myshopifyDomain,
+    collectionId: item.collectionId,
+    upsell: {
+      productId: item.upsell.productId,
+      productTitle: item.upsell.productTitle,
+    },
+  };
+  const query = {
+    myshopifyDomain: item.myshopifyDomain,
+    collectionId: item.collectionId,
+  };
+  const option = {
+    upsert: true,
+  };
+  await UpsellModel.findOneAndUpdate(query, data, option);
+  res.sendStatus(200).json(item);
+});
+
+export {
+  getUpsells,
+  getUpsellsByShop,
+  setUpsellOnProduct,
+  setUpsellOnCollection,
+};

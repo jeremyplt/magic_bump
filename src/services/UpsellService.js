@@ -20,7 +20,7 @@ function getUpsellsByShop(myshopifyDomain) {
 
 function addUpsell(myshopifyDomain, productId, upsell) {
   return axiosUpsell
-    .post("/", {
+    .post("/product", {
       myshopifyDomain: myshopifyDomain,
       productId: productId,
       upsell: {
@@ -28,8 +28,22 @@ function addUpsell(myshopifyDomain, productId, upsell) {
         productTitle: upsell.productTitle,
       },
     })
-    .then((res) => console.log(res.data))
+    .then((res) => res.data)
     .catch((err) => console.log(err));
 }
 
-export { getUpsells, getUpsellsByShop, addUpsell };
+function addCollectionUpsell(myshopifyDomain, collectionId, upsell) {
+  return axiosUpsell
+    .post("/collection", {
+      myshopifyDomain: myshopifyDomain,
+      collectionId: collectionId,
+      upsell: {
+        productId: upsell.productId,
+        productTitle: upsell.productTitle,
+      },
+    })
+    .then((res) => res.data)
+    .catch((err) => console.log(err));
+}
+
+export { getUpsells, getUpsellsByShop, addUpsell, addCollectionUpsell };

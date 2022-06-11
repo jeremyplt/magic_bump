@@ -2,10 +2,10 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const upsellsSlice = createSlice({
   name: "upsells",
-  initialState: { value: {} },
+  initialState: { value: [] },
   reducers: {
     addUpsells: (state, action) => {
-      state.value = { ...action.payload };
+      state.value = [...action.payload];
     },
   },
 });

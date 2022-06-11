@@ -1,7 +1,7 @@
 import React from "react";
 import { Switch, Route, withRouter } from "react-router";
 import { ClientRouter, RoutePropagator } from "@shopify/app-bridge-react";
-import Upsell from "./Upsell";
+import UpsellPage from "./Upsell";
 import ResultPage from "./ResultPage";
 import HomePage from "./HomePage";
 
@@ -14,7 +14,7 @@ function Routers(props) {
       <RoutePropagator location={location} />
       <Switch>
         <Route path="/upsells">
-          <Upsell />
+          <UpsellPage />
         </Route>
         <Route path="/results">
           <ResultPage />

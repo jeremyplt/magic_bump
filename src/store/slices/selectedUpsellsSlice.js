@@ -9,8 +9,7 @@ const selectedUpsellsSlice = createSlice({
     },
     removeSelectedUpsells: (state, action) => {
       const newState = { ...state.value };
-      if (action.payload.length > 0)
-        action.payload.forEach((id) => delete newState[id]);
+      if (action.payload) action.payload.forEach((id) => delete newState[id]);
       state.value = { ...newState };
     },
   },

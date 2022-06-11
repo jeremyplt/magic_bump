@@ -1,5 +1,14 @@
 import { useState, useEffect } from "react";
-import { Page, Layout, EmptyState, Card, List, Banner } from "@shopify/polaris";
+import {
+  Page,
+  Layout,
+  EmptyState,
+  Card,
+  List,
+  Banner,
+  TextContainer,
+  Heading,
+} from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,16 +30,16 @@ export function EmptyStatePage() {
   const history = useHistory();
   const dispatch = useDispatch();
   const shopUpsells = useSelector((state) => state.upsells.value);
-  const shopUrl = useSelector((state) => state.shop.value).myshopifyDomain;
+  const { myshopifyDomain } = useSelector((state) => state.shop.value);
 
   const setShopUpsellState = async () => {
-    const upsells = await getUpsellsByShop(shopUrl);
+    const upsells = await getUpsellsByShop(myshopifyDomain);
     dispatch(addUpsells(upsells));
   };
 
   useEffect(() => {
     setShopUpsellState();
-  }, [shopUrl]);
+  }, [myshopifyDomain]);
 
   const handleSelection = (resources) => {
     history.push("/results");
@@ -42,7 +51,7 @@ export function EmptyStatePage() {
   return (
     <Page fullWidth>
       {openProduct && (
-        <ResourcePicker // Resource picker component
+        <ResourcePicker
           resourceType="Product"
           showVariants={false}
           open={open}
@@ -52,7 +61,7 @@ export function EmptyStatePage() {
         />
       )}
       {openCollection && (
-        <ResourcePicker // Resource picker component
+        <ResourcePicker
           resourceType="Collection"
           showVariants={false}
           open={open}
@@ -63,6 +72,16 @@ export function EmptyStatePage() {
       )}
       <Layout>
         <Layout.Section>
+          <TextContainer>
+            <Heading>Welcome on Checkbox Upsell!</Heading>
+            <p>
+              Let's get started by following these <b>3 simple steps</b>. Once
+              completed, you'll be able to have checkbox upsells on your store
+              and <b>increase your sells</b>!
+            </p>
+          </TextContainer>
+        </Layout.Section>
+        <Layout.Section>
           {Object.keys(shopUpsells).length > 0 ? (
             <Banner title="Step 1 of 3" status="success">
               <p>You have successfully set up your first upsells!</p>
@@ -72,7 +91,7 @@ export function EmptyStatePage() {
               <Card.Section>
                 <p>
                   Bump will be displayed only on the product page you select.
-                  You can add or remove products later. {shopUrl}
+                  You can add or remove products later.
                 </p>
               </Card.Section>
               <Card.Section>
