@@ -1,9 +1,8 @@
 import { gql, useQuery } from "@apollo/client";
-import { Page, Layout, Banner, Card } from "@shopify/polaris";
+import { useSelector } from "react-redux";
+import { Banner } from "@shopify/polaris";
 import { Loading } from "@shopify/app-bridge-react";
-import { useContext } from "react";
 import { CollectionsList } from "./CollectionsList";
-import { GlobalContext } from "../Context";
 
 // GraphQL query to retrieve products by IDs.
 // The price field belongs to the variants object because
@@ -21,7 +20,7 @@ const GET_COLLECTIONS_BY_ID = gql`
 `;
 
 export function CollectionsPage() {
-  const { selection } = useContext(GlobalContext);
+  const selection = useSelector((state) => state.selection.value);
   const { loading, error, data, refetch } = useQuery(GET_COLLECTIONS_BY_ID, {
     variables: { ids: selection },
   });
@@ -30,7 +29,7 @@ export function CollectionsPage() {
   if (error) {
     console.warn(error);
     return (
-      <Banner status="critical">There was an issue loading products.</Banner>
+      <Banner status="critical">There was an issue loading collections.</Banner>
     );
   }
 

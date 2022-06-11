@@ -8,39 +8,46 @@ import {
   TextContainer,
 } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
-import React, { useState, useContext } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import React, { useState } from "react";
 import { DeleteMinor } from "@shopify/polaris-icons";
-import { ProductsListContext } from "../Context";
+import {
+  addSelectedUpsells,
+  removeSelectedUpsells,
+} from "../store/slices/selectedUpsellsSlice.js";
 
 export function ProductsList({ data }) {
   const [open, setOpen] = useState(false);
-  const {
-    selectedItems,
-    setSelectedItems,
-    activeProduct,
-    setActiveProduct,
-    selectedUpsell,
-    setSelectedUpsell,
-  } = useContext(ProductsListContext);
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [activeItem, setActiveItem] = useState("");
 
-  const handleSelection = (resources) => {
-    setOpen(false);
-    if (activeProduct) {
-      selectedUpsell[activeProduct] = {
-        productId: resources.selection[0].id,
-        productTitle: resources.selection[0].title,
-      };
-      setActiveProduct("");
-    } else if (selectedItems.length > 0) {
-      selectedItems.forEach((item) => {
-        selectedUpsell[item] = {
+  const dispatch = useDispatch();
+  const selectedUpsells = useSelector((state) => state.selectedUpsells.value);
+
+  function handleSelection(resources) {
+    if (activeItem) {
+      const newUpsell = {
+        [activeItem]: {
           productId: resources.selection[0].id,
           productTitle: resources.selection[0].title,
+        },
+      };
+      dispatch(addSelectedUpsells(newUpsell));
+      setActiveItem("");
+    } else if (selectedItems.length > 0) {
+      selectedItems.forEach((item) => {
+        const newUpsell = {
+          [item]: {
+            productId: resources.selection[0].id,
+            productTitle: resources.selection[0].title,
+          },
         };
+        dispatch(addSelectedUpsells(newUpsell));
         setSelectedItems([]);
       });
     }
-  };
+  }
+
   const promotedBulkActions = [
     {
       content: "Bulk add upsell",
@@ -57,8 +64,11 @@ export function ProductsList({ data }) {
         showVariants={false}
         open={open}
         selectMultiple={false}
-        actionVerb={ResourcePicker.ActionVerb.Select}
-        onSelection={(resources) => handleSelection(resources)}
+        // actionVerb={ResourcePicker.ActionVerb.Select}
+        onSelection={(resources) => {
+          setOpen(false);
+          handleSelection(resources);
+        }}
         onCancel={() => setOpen(false)}
       />
       <ResourceList // Defines your resource list component
@@ -96,7 +106,7 @@ export function ProductsList({ data }) {
                   <div>{price}</div>
                 </Stack.Item>
                 <Stack.Item>
-                  {selectedUpsell[item.id] ? (
+                  {selectedUpsells[item.id] ? (
                     <React.Fragment>
                       <Stack>
                         <Stack.Item>
@@ -104,14 +114,13 @@ export function ProductsList({ data }) {
                             <h3>
                               <TextStyle variation="strong">Upsell</TextStyle>
                             </h3>
-                            {selectedUpsell[item.id].title}
+                            {selectedUpsells[item.id].productTitle}
                           </TextContainer>
                         </Stack.Item>
                         <Stack.Item>
                           <Button
                             onClick={() => {
-                              delete selectedUpsell[item.id];
-                              setSelectedUpsell({ ...selectedUpsell });
+                              dispatch(removeSelectedUpsells([item.id]));
                             }}
                           >
                             <Icon source={DeleteMinor} color="base" />
@@ -123,7 +132,7 @@ export function ProductsList({ data }) {
                     <Button
                       onClick={() => {
                         setOpen(true);
-                        setActiveProduct(item.id);
+                        setActiveItem(item.id);
                       }}
                     >
                       Add upsell

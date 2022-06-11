@@ -1,6 +1,9 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import { ProductsPage } from "./ProductsPage";
 import { CollectionsPage } from "./CollectionsPage";
+import { AllProductsPage } from "./AllProductsPages";
 import {
   Page,
   Layout,
@@ -9,49 +12,59 @@ import {
   Banner,
   List,
 } from "@shopify/polaris";
-import { GlobalContext, ProductsListContext } from "../Context.js";
 import { addUpsell } from "../services/UpsellService";
+import { removeSelectedUpsells } from "../store/slices/selectedUpsellsSlice.js";
 
 const ResultPage = () => {
   const [showBanner, setShowBanner] = useState(true);
-  const [selectedItems, setSelectedItems] = useState([]);
-  const [activeProduct, setActiveProduct] = useState();
-  const [selectedUpsell, setSelectedUpsell] = useState({});
+  const [activeItem, setActiveItem] = useState();
 
-  const {
-    pageType,
-    setSelection,
-    selection,
-    shopUrl,
-    shopUpsells,
-    setShopUpsells,
-    history,
-    resetEmptyPage,
-  } = useContext(GlobalContext);
+  const history = useHistory();
+  const dispatch = useDispatch();
 
-  const productsListProps = {
-    selectedItems,
-    setSelectedItems,
-    activeProduct,
-    setActiveProduct,
-    selectedUpsell,
-    setSelectedUpsell,
-  };
+  const shopUrl = useSelector((state) => state.shop.value).myshopifyDomain;
+  const pageType = useSelector((state) => state.pageType.value);
+  const selectedUpsells = useSelector((state) => state.selectedUpsells.value);
 
-  let isDisabled = Object.keys(selectedUpsell).length > 0 ? false : true;
+  let isDisabled = Object.keys(selectedUpsells).length > 0 ? false : true;
 
-  const saveUpsells = () => {
-    for (const key in selectedUpsell) {
-      addUpsell(shopUrl, key, selectedUpsell[key]);
+  async function saveUpsells() {
+    for (const key in selectedUpsells) {
+      addUpsell(shopUrl, key, selectedUpsells[key]);
     }
     history.push("/");
-  };
+  }
+
+  function resetState() {
+    // setSelectedItems([]);
+    dispatch(removeSelectedUpsells());
+    setActiveItem("");
+  }
+
+  function goBackButton() {
+    history.push("/");
+  }
 
   return (
     <Page
       fullWidth
-      breadcrumbs={[{ content: "Home", onAction: resetEmptyPage }]}
-      primaryAction={{ content: "Save", disabled: isDisabled }}
+      breadcrumbs={[
+        {
+          content: "Home",
+          onAction: () => {
+            resetState();
+            goBackButton();
+          },
+        },
+      ]}
+      primaryAction={{
+        content: "Save",
+        disabled: isDisabled,
+        onAction: () => {
+          saveUpsells();
+          resetState();
+        },
+      }}
       title="Upsell setup"
       pagination={{
         hasNext: true,
@@ -90,9 +103,9 @@ const ResultPage = () => {
 
         <Layout.Section>
           <Card>
-            <ProductsListContext.Provider value={{ ...productsListProps }}>
-              {pageType === "product" ? <ProductsPage /> : <CollectionsPage />}
-            </ProductsListContext.Provider>
+            {pageType === "products" && <ProductsPage />}
+            {pageType === "allProducts" && <AllProductsPage />}
+            {pageType === "collections" && <CollectionsPage />}
           </Card>
         </Layout.Section>
       </Layout>
@@ -100,7 +113,10 @@ const ResultPage = () => {
         primaryAction={{
           content: "Save",
           disabled: isDisabled,
-          onAction: () => saveUpsells(),
+          onAction: () => {
+            saveUpsells();
+            resetState();
+          },
         }}
       />
     </Page>

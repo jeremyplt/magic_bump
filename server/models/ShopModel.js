@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const shopSchema = mongoose.Schema(
   {
     billingAddress: {
+      firstName: String,
       name: String,
       address1: String,
       address2: String,

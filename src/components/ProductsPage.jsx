@@ -1,9 +1,10 @@
 import { gql, useQuery } from "@apollo/client";
 import { Banner } from "@shopify/polaris";
-import { useContext } from "react";
 import { Loading } from "@shopify/app-bridge-react";
 import { ProductsList } from "./ProductsList";
-import { GlobalContext } from "../Context";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { addSelection } from "../store/slices/selectionSlice.js";
 // GraphQL query to retrieve products by IDs.
 // The price field belongs to the variants object because
 // product variants can have different prices.
@@ -37,42 +38,17 @@ const GET_PRODUCTS_BY_ID = gql`
   }
 `;
 
-const GET_ALL_PRODUCTS_BY_ID = gql`
-  query getAllProduct {
-    products(first: 20) {
-      edges {
-        node {
-          id
-        }
-      }
-    }
-  }
-`;
-
 export function ProductsPage() {
-  const { selection } = useContext(GlobalContext);
-  const {
-    loading: allLoading,
-    error: allError,
-    data: allData,
-    refetch: allRefetch,
-  } = useQuery(GET_ALL_PRODUCTS_BY_ID, {
-    skip: selection.length > 0,
-  });
-
-  if (allData)
-    allData.products.edges.forEach((product) => {
-      selection.push(product.node.id);
-    });
+  const selection = useSelector((state) => state.selection.value);
 
   const { loading, error, data, refetch } = useQuery(GET_PRODUCTS_BY_ID, {
     skip: selection.length === 0,
     variables: { ids: selection },
   });
 
-  if (loading || allLoading) return <Loading />;
+  if (loading) return <Loading />;
 
-  if (error || allError) {
+  if (error) {
     console.warn(error);
     return (
       <Banner status="critical">There was an issue loading products.</Banner>
