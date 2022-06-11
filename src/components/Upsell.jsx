@@ -1,8 +1,5 @@
 import React, { useContext } from "react";
-import { Page, Layout, Card, PageActions } from "@shopify/polaris";
-import { ProductsList } from "./ProductsList";
-
-import { GlobalContext } from "../Context";
+import { Page, Layout, Card } from "@shopify/polaris";
 
 function Upsell() {
   const { shopUpsells, resetEmptyPage } = useContext(GlobalContext);

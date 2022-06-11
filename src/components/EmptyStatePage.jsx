@@ -1,24 +1,42 @@
-import { useState, useContext } from "react";
+import { useState, useEffect } from "react";
 import { Page, Layout, EmptyState, Card, List, Banner } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import { useHistory } from "react-router-dom";
-import { GlobalContext } from "../Context";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addSelection,
+  removeSelection,
+} from "../store/slices/selectionSlice.js";
+import { addPageType } from "../store/slices/pageTypeSlice.js";
+import { getUpsellsByShop } from "../services/UpsellService";
+import { addUpsells } from "../store/slices/upsellsSlice.js";
+
 const img = "https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg";
 
 export function EmptyStatePage() {
   const [openProduct, setOpenProduct] = useState(false);
   const [openCollection, setOpenCollection] = useState(false);
   const [showBanner, setShowBanner] = useState(true);
-  const { setSelection, setPageType, shopUrl, shopUpsells } =
-    useContext(GlobalContext);
+
   const history = useHistory();
+  const dispatch = useDispatch();
+  const shopUpsells = useSelector((state) => state.upsells.value);
+  const shopUrl = useSelector((state) => state.shop.value).myshopifyDomain;
+
+  const setShopUpsellState = async () => {
+    const upsells = await getUpsellsByShop(shopUrl);
+    dispatch(addUpsells(upsells));
+  };
+
+  useEffect(() => {
+    setShopUpsellState();
+  }, [shopUrl]);
 
   const handleSelection = (resources) => {
     history.push("/results");
     setOpenProduct(false);
     setOpenCollection(false);
-    setSelection(resources.selection.map((product) => product.id));
-    console.log(resources.selection);
+    dispatch(addSelection(resources.selection.map((product) => product.id)));
   };
 
   return (
@@ -28,7 +46,7 @@ export function EmptyStatePage() {
           resourceType="Product"
           showVariants={false}
           open={open}
-          actionVerb={ResourcePicker.ActionVerb.Select}
+          // actionVerb={ResourcePicker.ActionVerb.Select}
           onSelection={(resources) => handleSelection(resources)}
           onCancel={() => setOpenProduct(false)}
         />
@@ -38,15 +56,15 @@ export function EmptyStatePage() {
           resourceType="Collection"
           showVariants={false}
           open={open}
-          actionVerb={ResourcePicker.ActionVerb.Select}
+          // actionVerb={ResourcePicker.ActionVerb.Select}
           onSelection={(resources) => handleSelection(resources)}
           onCancel={() => setOpenCollection(false)}
         />
       )}
       <Layout>
         <Layout.Section>
-          {shopUpsells.length > 0 ? (
-            <Banner title="Step 1/3" status="success">
+          {Object.keys(shopUpsells).length > 0 ? (
+            <Banner title="Step 1 of 3" status="success">
               <p>You have successfully set up your first upsells!</p>
             </Banner>
           ) : (
@@ -66,8 +84,8 @@ export function EmptyStatePage() {
                         content: "Select products",
                         onAction: () => {
                           setOpenProduct(true);
-                          setSelection([]);
-                          setPageType("product");
+                          dispatch(removeSelection());
+                          dispatch(addPageType("products"));
                         },
                       }}
                       image={img}
@@ -83,8 +101,8 @@ export function EmptyStatePage() {
                         content: "Select collections",
                         onAction: () => {
                           setOpenCollection(true);
-                          setSelection([]);
-                          setPageType("collection");
+                          dispatch(removeSelection());
+                          dispatch(addPageType("collections"));
                         },
                       }}
                       image={img}
@@ -99,8 +117,8 @@ export function EmptyStatePage() {
                       action={{
                         content: "Select all products",
                         onAction: () => {
-                          setSelection([]);
-                          setPageType("product");
+                          dispatch(removeSelection());
+                          dispatch(addPageType("allProducts"));
                           history.push("/results");
                         },
                       }}
