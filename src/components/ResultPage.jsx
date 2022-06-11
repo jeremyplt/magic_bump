@@ -12,8 +12,10 @@ import {
   Banner,
   List,
 } from "@shopify/polaris";
-import { addUpsell } from "../services/UpsellService";
+import { addUpsell, addCollectionUpsell } from "../services/UpsellService";
 import { removeSelectedUpsells } from "../store/slices/selectedUpsellsSlice.js";
+
+// const GET_PRODUCTS_BY_COLLECTION = gql``;
 
 const ResultPage = () => {
   const [showBanner, setShowBanner] = useState(true);
@@ -29,9 +31,14 @@ const ResultPage = () => {
   let isDisabled = Object.keys(selectedUpsells).length > 0 ? false : true;
 
   async function saveUpsells() {
-    for (const key in selectedUpsells) {
-      addUpsell(shopUrl, key, selectedUpsells[key]);
+    if (pageType === "collections") {
+      for (const key in selectedUpsells)
+        addCollectionUpsell(shopUrl, key, selectedUpsells[key]);
+    } else {
+      for (const key in selectedUpsells)
+        addUpsell(shopUrl, key, selectedUpsells[key]);
     }
+
     history.push("/");
   }
 

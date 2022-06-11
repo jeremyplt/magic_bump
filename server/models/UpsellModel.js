@@ -12,7 +12,7 @@ const upsellSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    productCollection: String,
+    collectionId: String,
     upsell: {
       productId: {
         type: String,

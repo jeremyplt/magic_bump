@@ -1,12 +1,11 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Page, Layout, Card } from "@shopify/polaris";
+import { useSelector } from "react-redux";
 
-function Upsell() {
-  const { shopUpsells, resetEmptyPage } = useContext(GlobalContext);
+function UpsellPage() {
   return (
     <Page
       fullWidth
-      breadcrumbs={[{ content: "Home", onAction: resetEmptyPage }]}
       title="Your Upsells"
       pagination={{
         hasNext: true,
@@ -21,4 +20,4 @@ function Upsell() {
   );
 }
 
-export default Upsell;
+export default UpsellPage;
