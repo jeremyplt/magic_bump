@@ -530,24 +530,24 @@
     "estree-walker" "^2.0.1"
     "picomatch" "^2.2.2"
 
-"@shopify/app-bridge-react@^3.0.1":
-  "integrity" "sha512-/NXsKKcaTE9Q1duF5V/Y+z1sowDM7PqBD9P6Rc92s1kJw05UEWNP+IzDECCF0GPODk6yUmnepWRYECvXMlTRFQ=="
-  "resolved" "https://registry.npmjs.org/@shopify/app-bridge-react/-/app-bridge-react-3.0.1.tgz"
-  "version" "3.0.1"
+"@shopify/app-bridge-react@^2.0.24":
+  "integrity" "sha512-bdTe9TDZcBvuGA4gyXAfyqb1EUpUQkYqu1wkOZ5F324cUeWzKBKyee9LX7aAXMmNzBTBuzu0JU05THf6s298aQ=="
+  "resolved" "https://registry.npmjs.org/@shopify/app-bridge-react/-/app-bridge-react-2.0.24.tgz"
+  "version" "2.0.24"
   dependencies:
-    "@shopify/app-bridge" "^3.0.1"
+    "@shopify/app-bridge" "^2.0.24"
 
-"@shopify/app-bridge-utils@^3.0.1":
-  "integrity" "sha512-1mTaSw1R9upw7R/uwiVdXotBCQwUvu3dQqohz38x7JIbu7FRh2yBGMEsSiaKlyDpAhkHzt+p0DzjvZI/4kfBRQ=="
-  "resolved" "https://registry.npmjs.org/@shopify/app-bridge-utils/-/app-bridge-utils-3.0.1.tgz"
-  "version" "3.0.1"
+"@shopify/app-bridge-utils@^2.0.24":
+  "integrity" "sha512-ACY3Kel9otGtTWxei26PbuaE1uqTd7FGZluLybNPOmwkt6EfaqYXZ1TPuvTeRCg0DiiLwzeEH5q04IqMnqhAGA=="
+  "resolved" "https://registry.npmjs.org/@shopify/app-bridge-utils/-/app-bridge-utils-2.0.24.tgz"
+  "version" "2.0.24"
   dependencies:
-    "@shopify/app-bridge" "^3.0.1"
+    "@shopify/app-bridge" "^2.0.24"
 
-"@shopify/app-bridge@^3.0.1":
-  "integrity" "sha512-KHEwLLYA9GCWW7q8xxpulPSfvCdGpFq3hn+1QIh3gtxX/1yN5A1wMOoOByUSKvwNQJV/Wfes5g9zuyxx6Wmoew=="
-  "resolved" "https://registry.npmjs.org/@shopify/app-bridge/-/app-bridge-3.0.1.tgz"
-  "version" "3.0.1"
+"@shopify/app-bridge@^2.0.24":
+  "integrity" "sha512-XFkMAd2FWTR1Ls+oCDt7MTy5IvHxgAVzp3FiggtnApsmZ8oQIaMPv51ZFIeDWuzxZxHDuMbJhMJCLsV9Ojm4cw=="
+  "resolved" "https://registry.npmjs.org/@shopify/app-bridge/-/app-bridge-2.0.24.tgz"
+  "version" "2.0.24"
   dependencies:
     "base64url" "^3.0.1"
 
@@ -3699,7 +3699,7 @@
     "loose-envify" "^1.4.0"
     "prop-types" "^15.6.2"
 
-"react@^0.14.0 || ^15.0.0 || ^16.0.0 || ^17.0.0", "react@^16.0.0 || ^17.0.0 || ^18.0.0", "react@^16.14.0 || ^17.0.0", "react@^16.8 || ^17.0 || ^18.0", "react@^16.8.0 || ^17.0.0 || ^18.0.0", "react@^16.9.0 || ^17.0.0 || ^18", "react@^18.1.0", "react@>=15", "react@>=16.6.0":
+"react@^0.14.0 || ^15.0.0 || ^16.0.0 || ^17.0.0", "react@^16.0.0 || ^17.0.0", "react@^16.14.0 || ^17.0.0", "react@^16.8 || ^17.0 || ^18.0", "react@^16.8.0 || ^17.0.0 || ^18.0.0", "react@^16.9.0 || ^17.0.0 || ^18", "react@^18.1.0", "react@>=15", "react@>=16.6.0":
   "integrity" "sha512-4oL8ivCz5ZEPyclFQXaNksK3adutVS8l2xzZU0cqEFrE9Sb7fC0EFK5uEk74wIreL1DERyjvsU915j1pcT2uEQ=="
   "resolved" "https://registry.npmjs.org/react/-/react-18.1.0.tgz"
   "version" "18.1.0"

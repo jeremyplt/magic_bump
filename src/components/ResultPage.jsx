@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useHistory } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { ProductsPage } from "./ProductsPage";
 import { CollectionsPage } from "./CollectionsPage";
 import { AllProductsPage } from "./AllProductsPages";
+import { gql, useMutation } from "@apollo/client";
 import {
   Page,
   Layout,
@@ -11,40 +12,127 @@ import {
   PageActions,
   Banner,
   List,
+  Toast,
 } from "@shopify/polaris";
-import { addUpsell, addCollectionUpsell } from "../services/UpsellService";
-import { removeSelectedUpsells } from "../store/slices/selectedUpsellsSlice.js";
+import { removeAllSelectedUpsells } from "../store/slices/selectedUpsellsSlice.js";
+import { addProducts } from "../store/slices/upsellsSlice";
+import { toggleActive } from "../store/slices/toastSlice";
 
-// const GET_PRODUCTS_BY_COLLECTION = gql``;
+const ADD_PRODUCT_METAFIELD = gql`
+  mutation ($input: ProductInput!) {
+    productUpdate(input: $input) {
+      product {
+        metafields(first: 100) {
+          edges {
+            node {
+              namespace
+              key
+              value
+            }
+          }
+        }
+        tags
+      }
+    }
+  }
+`;
+
+const ADD_COLLECTION_METAFIELD = gql`
+  mutation ($input: CollectionInput!) {
+    collectionUpdate(input: $input) {
+      collection {
+        metafields(first: 100) {
+          edges {
+            node {
+              namespace
+              key
+              value
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+const ADD_TAG_TO_PRODUCT = gql`
+  mutation tagsAdd($id: ID!, $tags: [String!]!) {
+    tagsAdd(id: $id, tags: $tags) {
+      node {
+        id
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
 
 const ResultPage = () => {
   const [showBanner, setShowBanner] = useState(true);
   const [activeItem, setActiveItem] = useState();
+  const [addProductMetafield] = useMutation(ADD_PRODUCT_METAFIELD);
+  const [addCollectionMetafield] = useMutation(ADD_COLLECTION_METAFIELD);
+  const [addTagToProduct] = useMutation(ADD_TAG_TO_PRODUCT);
 
   const history = useHistory();
   const dispatch = useDispatch();
 
-  const shopUrl = useSelector((state) => state.shop.value).myshopifyDomain;
   const pageType = useSelector((state) => state.pageType.value);
   const selectedUpsells = useSelector((state) => state.selectedUpsells.value);
 
   let isDisabled = Object.keys(selectedUpsells).length > 0 ? false : true;
 
-  async function saveUpsells() {
+  function saveUpsells() {
     if (pageType === "collections") {
-      for (const key in selectedUpsells)
-        addCollectionUpsell(shopUrl, key, selectedUpsells[key]);
+      for (const key in selectedUpsells) {
+        addCollectionMetafield({
+          variables: {
+            input: {
+              id: key,
+              metafields: [
+                {
+                  namespace: "collection",
+                  key: "upsell",
+                  value: selectedUpsells[key].productId,
+                  type: "product_reference",
+                },
+              ],
+            },
+          },
+        });
+      }
     } else {
-      for (const key in selectedUpsells)
-        addUpsell(shopUrl, key, selectedUpsells[key]);
+      for (const key in selectedUpsells) {
+        addProductMetafield({
+          variables: {
+            input: {
+              id: key,
+              metafields: [
+                {
+                  namespace: "product",
+                  key: "upsell",
+                  value: selectedUpsells[key].productId,
+                  type: "product_reference",
+                },
+              ],
+            },
+          },
+        });
+        addTagToProduct({
+          variables: {
+            id: key,
+            tags: ["upsell"],
+          },
+        });
+      }
+      dispatch(addProducts(Object.keys(selectedUpsells)));
     }
-
-    history.push("/");
   }
 
   function resetState() {
-    // setSelectedItems([]);
-    dispatch(removeSelectedUpsells());
+    dispatch(removeAllSelectedUpsells());
     setActiveItem("");
   }
 
@@ -70,6 +158,8 @@ const ResultPage = () => {
         onAction: () => {
           saveUpsells();
           resetState();
+          dispatch(toggleActive());
+          history.push("/");
         },
       }}
       title="Upsell setup"
@@ -123,6 +213,8 @@ const ResultPage = () => {
           onAction: () => {
             saveUpsells();
             resetState();
+            dispatch(toggleActive());
+            history.push("/");
           },
         }}
       />

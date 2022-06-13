@@ -1,10 +1,9 @@
 import { useEffect } from "react";
 import { gql, useQuery } from "@apollo/client";
-import { getUpsellsByShop } from "../services/UpsellService";
 import { updateShop } from "../services/ShopService";
 import { useDispatch, useSelector } from "react-redux";
 import { addShop } from "../store/slices/shopSlice.js";
-import { addUpsells } from "../store/slices/upsellsSlice";
+import { addCollections, addProducts } from "../store/slices/upsellsSlice";
 
 // Adding more informations about the shop in the DB
 
@@ -35,29 +34,55 @@ const GET_SHOP_INFOS = gql`
       }
       url
     }
+    products(first: 50, query: "tag:upsell") {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+    collections(first: 50) {
+      edges {
+        node {
+          id
+          metafield(namespace: "collection", key: "upsell") {
+            id
+          }
+        }
+      }
+    }
   }
 `;
 
 function GetShopData() {
-  const { data } = useQuery(GET_SHOP_INFOS);
+  const { data, error } = useQuery(GET_SHOP_INFOS);
   const shopState = useSelector((state) => state.shop.value);
   const dispatch = useDispatch();
-
-  async function setShopUpsellsState() {
-    return await getUpsellsByShop(shopState.myshopifyDomain);
-  }
 
   useEffect(() => {
     if (data) {
       const shop = data.shop;
+      const productsIds = data.products.edges.map((product) => product.node.id);
+      const collections = data.collections.edges;
+      const sortedCollections = collections.filter(
+        (collection) => collection.node.metafield
+      );
+      const sortedCollectionsIds = sortedCollections.map(
+        (collection) => collection.node.id
+      );
+
       dispatch(addShop(shop));
+      if (sortedCollectionsIds.length > 0)
+        dispatch(addCollections(sortedCollectionsIds));
+      if (productsIds.length > 0) dispatch(addProducts(productsIds));
+
       updateShop(shop);
     }
   }, [data]);
 
   useEffect(() => {
-    setShopUpsellsState().then((upsells) => dispatch(addUpsells(upsells)));
-  }, [shopState]);
+    console.log(error);
+  }, [error]);
 
   return;
 }

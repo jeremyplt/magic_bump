@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Page,
   Layout,
@@ -8,6 +8,8 @@ import {
   Banner,
   TextContainer,
   Heading,
+  Frame,
+  Toast,
 } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import { useHistory } from "react-router-dom";
@@ -17,8 +19,7 @@ import {
   removeSelection,
 } from "../store/slices/selectionSlice.js";
 import { addPageType } from "../store/slices/pageTypeSlice.js";
-import { getUpsellsByShop } from "../services/UpsellService";
-import { addUpsells } from "../store/slices/upsellsSlice.js";
+import { toggleActive } from "../store/slices/toastSlice";
 
 const img = "https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg";
 
@@ -29,17 +30,13 @@ export function EmptyStatePage() {
 
   const history = useHistory();
   const dispatch = useDispatch();
+
   const shopUpsells = useSelector((state) => state.upsells.value);
-  const { myshopifyDomain } = useSelector((state) => state.shop.value);
+  const active = useSelector((state) => state.toast.value);
 
-  const setShopUpsellState = async () => {
-    const upsells = await getUpsellsByShop(myshopifyDomain);
-    dispatch(addUpsells(upsells));
-  };
-
-  useEffect(() => {
-    setShopUpsellState();
-  }, [myshopifyDomain]);
+  const toastMarkup = active ? (
+    <Toast content="Upsells Saved" onDismiss={toggleActive} />
+  ) : null;
 
   const handleSelection = (resources) => {
     history.push("/results");
@@ -82,7 +79,8 @@ export function EmptyStatePage() {
           </TextContainer>
         </Layout.Section>
         <Layout.Section>
-          {Object.keys(shopUpsells).length > 0 ? (
+          {shopUpsells.products.length > 0 ||
+          shopUpsells.collections.length > 0 ? (
             <Banner title="Step 1 of 3" status="success">
               <p>You have successfully set up your first upsells!</p>
             </Banner>
@@ -203,6 +201,7 @@ export function EmptyStatePage() {
           </Card>
         </Layout.Section>
       </Layout>
+      <Frame>{toastMarkup}</Frame>
     </Page>
   );
 }

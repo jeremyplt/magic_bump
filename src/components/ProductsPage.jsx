@@ -5,38 +5,7 @@ import { ProductsList } from "./ProductsList";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { addSelection } from "../store/slices/selectionSlice.js";
-// GraphQL query to retrieve products by IDs.
-// The price field belongs to the variants object because
-// product variants can have different prices.
-const GET_PRODUCTS_BY_ID = gql`
-  query getProducts($ids: [ID!]!) {
-    nodes(ids: $ids) {
-      ... on Product {
-        title
-        handle
-        descriptionHtml
-        id
-        images(first: 1) {
-          edges {
-            node {
-              id
-              originalSrc
-              altText
-            }
-          }
-        }
-        variants(first: 1) {
-          edges {
-            node {
-              price
-              id
-            }
-          }
-        }
-      }
-    }
-  }
-`;
+import { GET_PRODUCTS_BY_ID } from "../utils/queries";
 
 export function ProductsPage() {
   const selection = useSelector((state) => state.selection.value);

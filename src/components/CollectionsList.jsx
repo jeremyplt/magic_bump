@@ -18,7 +18,7 @@ import {
 export function CollectionsList({ data }) {
   const [open, setOpen] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
-  const [activeItem, setActiveItem] = useState("");
+  const [activeItem, setActiveItem] = useState({});
   const selectedUpsells = useSelector((state) => state.selectedUpsells.value);
 
   const dispatch = useDispatch();
@@ -26,19 +26,22 @@ export function CollectionsList({ data }) {
   function handleSelection(resources) {
     if (activeItem) {
       const newUpsell = {
-        [activeItem]: {
+        [activeItem.id]: {
           productId: resources.selection[0].id,
           productTitle: resources.selection[0].title,
         },
       };
       dispatch(addSelectedUpsells(newUpsell));
-      setActiveItem("");
+      setActiveItem({});
     } else if (selectedItems.length > 0) {
       selectedItems.forEach((item) => {
         const newUpsell = {
-          [item]: {
-            productId: resources.selection[0].id,
-            productTitle: resources.selection[0].title,
+          [item.id]: {
+            collectionTitle: item.title,
+            upsell: {
+              productId: resources.selection[0].id,
+              productTitle: resources.selection[0].title,
+            },
           },
         };
         dispatch(addSelectedUpsells(newUpsell));
@@ -113,7 +116,7 @@ export function CollectionsList({ data }) {
                     <Button
                       onClick={() => {
                         setOpen(true);
-                        setActiveItem(item.id);
+                        setActiveItem(item);
                       }}
                     >
                       Add upsell

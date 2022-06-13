@@ -8,13 +8,21 @@ import {
   Provider as AppBridgeProvider,
   useAppBridge,
 } from "@shopify/app-bridge-react";
+import { useCallback } from "react";
 import { authenticatedFetch } from "@shopify/app-bridge-utils";
 import { Redirect } from "@shopify/app-bridge/actions";
-import { AppProvider as PolarisProvider } from "@shopify/polaris";
+import {
+  Toast,
+  Frame,
+  Page,
+  Card,
+  AppProvider as PolarisProvider,
+} from "@shopify/polaris";
 import translations from "@shopify/polaris/locales/en.json";
 import "@shopify/polaris/build/esm/styles.css";
 import Routers from "./components/Routers";
 import GetShopData from "./components/GetShopData";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function App() {
   return (

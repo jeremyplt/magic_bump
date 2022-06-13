@@ -8,11 +8,14 @@ const upsellSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    productId: {
-      type: String,
-      required: true,
+    productItem: {
+      id: String,
+      name: String,
     },
-    collectionId: String,
+    collectionItem: {
+      id: String,
+      name: String,
+    },
     upsell: {
       productId: {
         type: String,

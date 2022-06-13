@@ -12,10 +12,16 @@ const selectedUpsellsSlice = createSlice({
       if (action.payload) action.payload.forEach((id) => delete newState[id]);
       state.value = { ...newState };
     },
+    removeAllSelectedUpsells: (state, action) => {
+      state.value = {};
+    },
   },
 });
 
-export const { addSelectedUpsells, removeSelectedUpsells } =
-  selectedUpsellsSlice.actions;
+export const {
+  addSelectedUpsells,
+  removeSelectedUpsells,
+  removeAllSelectedUpsells,
+} = selectedUpsellsSlice.actions;
 
 export default selectedUpsellsSlice.reducer;
