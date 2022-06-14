@@ -3,8 +3,6 @@ import { Banner } from "@shopify/polaris";
 import { Loading } from "@shopify/app-bridge-react";
 import { ProductsList } from "./ProductsList";
 import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
-import { addSelection } from "../store/slices/selectionSlice.js";
 import { GET_PRODUCTS_BY_ID } from "../utils/queries";
 
 export function ProductsPage() {

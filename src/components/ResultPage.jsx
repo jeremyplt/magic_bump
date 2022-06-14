@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { ProductsPage } from "./ProductsPage";
@@ -17,57 +17,11 @@ import {
 import { removeAllSelectedUpsells } from "../store/slices/selectedUpsellsSlice.js";
 import { addProducts } from "../store/slices/upsellsSlice";
 import { toggleActive } from "../store/slices/toastSlice";
-
-const ADD_PRODUCT_METAFIELD = gql`
-  mutation ($input: ProductInput!) {
-    productUpdate(input: $input) {
-      product {
-        metafields(first: 100) {
-          edges {
-            node {
-              namespace
-              key
-              value
-            }
-          }
-        }
-        tags
-      }
-    }
-  }
-`;
-
-const ADD_COLLECTION_METAFIELD = gql`
-  mutation ($input: CollectionInput!) {
-    collectionUpdate(input: $input) {
-      collection {
-        metafields(first: 100) {
-          edges {
-            node {
-              namespace
-              key
-              value
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-
-const ADD_TAG_TO_PRODUCT = gql`
-  mutation tagsAdd($id: ID!, $tags: [String!]!) {
-    tagsAdd(id: $id, tags: $tags) {
-      node {
-        id
-      }
-      userErrors {
-        field
-        message
-      }
-    }
-  }
-`;
+import {
+  ADD_PRODUCT_METAFIELD,
+  ADD_COLLECTION_METAFIELD,
+  ADD_TAG_TO_PRODUCT,
+} from "../utils/queries";
 
 const ResultPage = () => {
   const [showBanner, setShowBanner] = useState(true);
