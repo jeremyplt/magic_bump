@@ -1,5 +1,7 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { useQuery } from "@apollo/client";
+import { useHistory } from "react-router-dom";
+import { useSelector } from "react-redux";
 import {
   Page,
   Layout,
@@ -9,19 +11,16 @@ import {
   Thumbnail,
   Stack,
   Banner,
-  Modal,
-  Button,
-  EmptyState,
 } from "@shopify/polaris";
-import { useSelector } from "react-redux";
-import { Loading } from "@shopify/app-bridge-react";
 import { GET_PRODUCTS_BY_ID, GET_COLLECTIONS_BY_ID } from "../utils/queries";
-import { useHistory } from "react-router-dom";
+import ProductsListSkeleton from "./skeletons/ProductsListSkeleton";
 
 const img = "https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg";
 
 function UpsellPage() {
   const [showBanner, setShowBanner] = useState(true);
+
+  const history = useHistory();
 
   const upsells = useSelector((state) => state.upsells.value);
   const productUpsells = upsells.products;
@@ -92,7 +91,12 @@ function UpsellPage() {
             <Card
               title="Product Upsells"
               primaryFooterAction={{ content: "Add Upsell on Product" }}
-              actions={productData && [{ content: "Manage all" }]}
+              actions={
+                productData && {
+                  content: "Manage all",
+                  onAction: () => history.push("/upsells/products"),
+                }
+              }
             >
               {productData && (
                 <Card.Section>
@@ -143,13 +147,11 @@ function UpsellPage() {
                     }}
                   />
                 )}
-                {productLoading && <Loading />}
+                {productLoading && <ProductsListSkeleton />}
                 {!productData && !productLoading && (
-                  <Card.Section>
-                    <TextStyle variation="warning">
-                      6 products with upsells
-                    </TextStyle>
-                  </Card.Section>
+                  <TextStyle>
+                    There is currently no product upsell set up.
+                  </TextStyle>
                 )}
               </Card.Section>
             </Card>
@@ -192,7 +194,7 @@ function UpsellPage() {
                     }}
                   />
                 )}
-                {collectionLoading && <Loading />}
+                {collectionLoading && <ProductsListSkeleton />}
                 {!collectionData && !collectionLoading && (
                   <TextStyle>
                     There is currently no collection upsell set up.

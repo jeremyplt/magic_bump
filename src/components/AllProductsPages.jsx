@@ -1,42 +1,11 @@
-import { gql, useQuery } from "@apollo/client";
-import { Banner } from "@shopify/polaris";
-import { Loading } from "@shopify/app-bridge-react";
+import { useQuery } from "@apollo/client";
+import { Banner, Layout } from "@shopify/polaris";
 import { ProductsList } from "./ProductsList";
 import { useDispatch } from "react-redux";
 import { addSelection } from "../store/slices/selectionSlice.js";
 import { useEffect } from "react";
-
-const GET_ALL_PRODUCTS_BY_ID = gql`
-  query getAllProduct {
-    products(first: 20) {
-      edges {
-        node {
-          id
-          title
-          handle
-          descriptionHtml
-          images(first: 1) {
-            edges {
-              node {
-                id
-                originalSrc
-                altText
-              }
-            }
-          }
-          variants(first: 1) {
-            edges {
-              node {
-                price
-                id
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`;
+import { GET_ALL_PRODUCTS_BY_ID } from "../utils/queries";
+import ProductsListSkeleton from "./skeletons/ProductsListSkeleton";
 
 const formatData = (data) => {
   const products = data.products.edges;
@@ -75,7 +44,12 @@ export function AllProductsPage() {
     }
   }, [data]);
 
-  if (loading) return <Loading />;
+  if (loading)
+    return (
+      <div style={{ padding: "25px" }}>
+        <ProductsListSkeleton />
+      </div>
+    );
 
   if (error) {
     console.warn(error);

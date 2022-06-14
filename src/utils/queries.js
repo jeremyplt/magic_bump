@@ -38,11 +38,11 @@ const GET_COLLECTIONS_BY_ID = gql`
     nodes(ids: $ids) {
       ... on Collection {
         title
+        id
       }
     }
   }
 `;
-
 const ADD_PRODUCT_METAFIELD = gql`
   mutation ($input: ProductInput!) {
     productUpdate(input: $input) {
@@ -141,9 +141,42 @@ const GET_SHOP_INFOS = gql`
   }
 `;
 
+const GET_ALL_PRODUCTS_BY_ID = gql`
+  query getAllProduct {
+    products(first: 20) {
+      edges {
+        node {
+          id
+          title
+          handle
+          descriptionHtml
+          images(first: 1) {
+            edges {
+              node {
+                id
+                originalSrc
+                altText
+              }
+            }
+          }
+          variants(first: 1) {
+            edges {
+              node {
+                price
+                id
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
 export {
   GET_SHOP_INFOS,
   GET_PRODUCTS_BY_ID,
+  GET_ALL_PRODUCTS_BY_ID,
   GET_COLLECTIONS_BY_ID,
   ADD_PRODUCT_METAFIELD,
   ADD_COLLECTION_METAFIELD,

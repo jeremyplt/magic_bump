@@ -35,7 +35,11 @@ export function EmptyStatePage() {
   const active = useSelector((state) => state.toast.value);
 
   const toastMarkup = active ? (
-    <Toast content="Upsells Saved" onDismiss={toggleActive} />
+    <Toast
+      content="Upsells Saved"
+      duration={2000}
+      onDismiss={() => dispatch(toggleActive())}
+    />
   ) : null;
 
   const handleSelection = (resources) => {

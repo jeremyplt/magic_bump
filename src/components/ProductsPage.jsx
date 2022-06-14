@@ -1,9 +1,9 @@
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { Banner } from "@shopify/polaris";
-import { Loading } from "@shopify/app-bridge-react";
 import { ProductsList } from "./ProductsList";
 import { useSelector } from "react-redux";
 import { GET_PRODUCTS_BY_ID } from "../utils/queries";
+import ProductsListSkeleton from "./skeletons/ProductsListSkeleton";
 
 export function ProductsPage() {
   const selection = useSelector((state) => state.selection.value);
@@ -13,7 +13,12 @@ export function ProductsPage() {
     variables: { ids: selection },
   });
 
-  if (loading) return <Loading />;
+  if (loading)
+    return (
+      <div style={{ padding: "25px" }}>
+        <ProductsListSkeleton />
+      </div>
+    );
 
   if (error) {
     console.warn(error);
