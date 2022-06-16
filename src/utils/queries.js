@@ -26,7 +26,7 @@ const GET_PRODUCTS_BY_ID = gql`
           }
         }
         metafield(namespace: "product", key: "upsell") {
-          reference
+          value
         }
       }
     }
