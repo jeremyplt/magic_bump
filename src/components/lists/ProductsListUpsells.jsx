@@ -11,7 +11,7 @@ import {
 import { useDispatch } from "react-redux";
 import React, { useState } from "react";
 import { DeleteMinor } from "@shopify/polaris-icons";
-import { removeSelectedUpsells } from "../store/slices/selectedUpsellsSlice.js";
+import { removeSelectedUpsells } from "../../store/slices/selectedUpsellsSlice.js";
 
 export function ProductsListUpsells({ data }) {
   const [selectedItems, setSelectedItems] = useState([]);

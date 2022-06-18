@@ -14,14 +14,14 @@ import {
   List,
   Toast,
 } from "@shopify/polaris";
-import { removeAllSelectedUpsells } from "../store/slices/selectedUpsellsSlice.js";
-import { addProducts } from "../store/slices/upsellsSlice";
-import { toggleActive } from "../store/slices/toastSlice";
+import { removeAllSelectedUpsells } from "../../store/slices/selectedUpsellsSlice.js";
+import { addProducts } from "../../store/slices/upsellsSlice";
+import { toggleActive } from "../../store/slices/toastSlice";
 import {
   ADD_PRODUCT_METAFIELD,
   ADD_COLLECTION_METAFIELD,
   ADD_TAG_TO_PRODUCT,
-} from "../utils/queries";
+} from "../../utils/queries";
 
 const ResultPage = () => {
   const [showBanner, setShowBanner] = useState(true);

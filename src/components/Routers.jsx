@@ -1,11 +1,11 @@
 import React from "react";
 import { Switch, Route, withRouter } from "react-router";
 import { ClientRouter, RoutePropagator } from "@shopify/app-bridge-react";
-import UpsellPage from "./Upsell";
-import ResultPage from "./ResultPage";
-import HomePage from "./HomePage";
-import ProductsUpsellPage from "./ProductsUpsellPage";
-import CollectionsUpsellPage from "./CollectionsUpsellPage";
+import UpsellPage from "./upsells/Upsell";
+import ResultPage from "./results/ResultPage";
+import HomePage from "./homepage/HomePage";
+import ProductsUpsellPage from "./upsells/ProductsUpsellPage";
+import CollectionsUpsellPage from "./upsells/CollectionsUpsellPage";
 
 function Routers(props) {
   const { history, location } = props;

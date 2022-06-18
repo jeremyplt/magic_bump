@@ -10,12 +10,12 @@ import {
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import { useHistory } from "react-router-dom";
 import { useQuery } from "@apollo/client";
-import { GET_PRODUCTS_BY_ID } from "../utils/queries";
+import { GET_PRODUCTS_BY_ID } from "../../utils/queries";
 import { useSelector, useDispatch } from "react-redux";
-import ProductsListSkeleton from "./skeletons/ProductsListSkeleton";
-import { addSelection } from "../store/slices/selectionSlice";
-import { ProductsListUpsells } from "./ProductsListUpsells";
-import { addPageType } from "../store/slices/pageTypeSlice";
+import ProductsListSkeleton from "../skeletons/ProductsListSkeleton";
+import { addSelection } from "../../store/slices/selectionSlice";
+import { ProductsListUpsells } from "../lists/ProductsListUpsells";
+import { addPageType } from "../../store/slices/pageTypeSlice";
 
 function ProductsUpsellPage() {
   const [showBanner, setShowBanner] = useState(true);

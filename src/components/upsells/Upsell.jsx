@@ -12,8 +12,9 @@ import {
   Stack,
   Banner,
 } from "@shopify/polaris";
-import { GET_PRODUCTS_BY_ID, GET_COLLECTIONS_BY_ID } from "../utils/queries";
-import ProductsListSkeleton from "./skeletons/ProductsListSkeleton";
+import { ResourcePicker } from "@shopify/app-bridge-react";
+import { GET_PRODUCTS_BY_ID, GET_COLLECTIONS_BY_ID } from "../../utils/queries";
+import ProductsListSkeleton from "../skeletons/ProductsListSkeleton";
 
 const img = "https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg";
 
@@ -47,6 +48,18 @@ function UpsellPage() {
   return (
     <Page fullWidth title="Your Upsells">
       <div style={{ marginBottom: "20px" }}>
+        <ResourcePicker
+          resourceType="Product"
+          open={open}
+          // actionVerb={ResourcePicker.ActionVerb.Select}
+          selectMultiple={false}
+          onSelection={(resources) => {
+            setOpen(false);
+            handleSelection(resources);
+          }}
+          onCancel={() => setOpen(false)}
+          showVariants={false}
+        />
         <Layout>
           {showBanner && (
             <Layout.Section fullWidth>

@@ -13,7 +13,7 @@ import { DeleteMinor } from "@shopify/polaris-icons";
 import {
   addSelectedUpsells,
   removeSelectedUpsells,
-} from "../store/slices/selectedUpsellsSlice.js";
+} from "../../store/slices/selectedUpsellsSlice.js";
 
 export function CollectionsList({ data }) {
   const [open, setOpen] = useState(false);

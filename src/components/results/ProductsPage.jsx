@@ -1,9 +1,9 @@
 import { useQuery } from "@apollo/client";
 import { Banner } from "@shopify/polaris";
-import { ProductsList } from "./ProductsList";
+import { ProductsList } from "../lists/ProductsList";
 import { useSelector } from "react-redux";
-import { GET_PRODUCTS_BY_ID } from "../utils/queries";
-import ProductsListSkeleton from "./skeletons/ProductsListSkeleton";
+import { GET_PRODUCTS_BY_ID } from "../../utils/queries";
+import ProductsListSkeleton from "../skeletons/ProductsListSkeleton";
 
 export function ProductsPage() {
   const selection = useSelector((state) => state.selection.value);

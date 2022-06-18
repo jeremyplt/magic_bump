@@ -1,11 +1,11 @@
 import { useQuery } from "@apollo/client";
 import { Banner, Layout } from "@shopify/polaris";
-import { ProductsList } from "./ProductsList";
+import { ProductsList } from "../lists/ProductsList";
 import { useDispatch } from "react-redux";
-import { addSelection } from "../store/slices/selectionSlice.js";
+import { addSelection } from "../../store/slices/selectionSlice.js";
 import { useEffect } from "react";
-import { GET_ALL_PRODUCTS_BY_ID } from "../utils/queries";
-import ProductsListSkeleton from "./skeletons/ProductsListSkeleton";
+import { GET_ALL_PRODUCTS_BY_ID } from "../../utils/queries";
+import ProductsListSkeleton from "../skeletons/ProductsListSkeleton";
 
 const formatData = (data) => {
   const products = data.products.edges;

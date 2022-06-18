@@ -1,9 +1,9 @@
 import { gql, useQuery } from "@apollo/client";
 import { useSelector } from "react-redux";
 import { Banner } from "@shopify/polaris";
-import { CollectionsList } from "./CollectionsList";
-import ProductsListSkeleton from "./skeletons/ProductsListSkeleton";
-import { GET_COLLECTIONS_BY_ID } from "../utils/queries";
+import { CollectionsList } from "../lists/CollectionsList";
+import ProductsListSkeleton from "../skeletons/ProductsListSkeleton";
+import { GET_COLLECTIONS_BY_ID } from "../../utils/queries";
 
 export function CollectionsPage() {
   const selection = useSelector((state) => state.selection.value);

@@ -17,9 +17,9 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   addSelection,
   removeSelection,
-} from "../store/slices/selectionSlice.js";
-import { addPageType } from "../store/slices/pageTypeSlice.js";
-import { toggleActive } from "../store/slices/toastSlice";
+} from "../../store/slices/selectionSlice.js";
+import { addPageType } from "../../store/slices/pageTypeSlice.js";
+import { toggleActive } from "../../store/slices/toastSlice";
 
 const img = "https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg";
 
