@@ -13,7 +13,7 @@ const formatData = (data) => {
   const newData = {
     nodes: [],
   };
-  for (const product of data.products.edges) {
+  for (const product of products) {
     newProduct = {
       descriptionHtml: product.node.descriptionHtml,
       handle: product.node.handle,

@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@apollo/client";
 import { useHistory } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import {
   Page,
   Layout,
@@ -15,13 +15,21 @@ import {
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import { GET_PRODUCTS_BY_ID, GET_COLLECTIONS_BY_ID } from "../../utils/queries";
 import ProductsListSkeleton from "../skeletons/ProductsListSkeleton";
+import { addPageType } from "../../store/slices/pageTypeSlice";
+import {
+  removeSelection,
+  addSelection,
+} from "../../store/slices/selectionSlice";
 
 const img = "https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg";
 
 function UpsellPage() {
   const [showBanner, setShowBanner] = useState(true);
+  const [openProduct, setOpenProduct] = useState(false);
+  const [openCollection, setOpenCollection] = useState(false);
 
   const history = useHistory();
+  const dispatch = useDispatch();
 
   const upsells = useSelector((state) => state.upsells.value);
   const productUpsells = upsells.products;
@@ -45,21 +53,41 @@ function UpsellPage() {
     variables: { ids: collectionUpsells },
   });
 
+  const handleSelection = (resources) => {
+    history.push("/results");
+    setOpenProduct(false);
+    setOpenCollection(false);
+    dispatch(addSelection(resources.selection.map((product) => product.id)));
+  };
+
+  useEffect(() => {
+    console.log("collection data :", collectionData);
+    console.log("collection error :", collectionError);
+  }, [collectionData, collectionError]);
+
   return (
     <Page fullWidth title="Your Upsells">
       <div style={{ marginBottom: "20px" }}>
-        <ResourcePicker
-          resourceType="Product"
-          open={open}
-          // actionVerb={ResourcePicker.ActionVerb.Select}
-          selectMultiple={false}
-          onSelection={(resources) => {
-            setOpen(false);
-            handleSelection(resources);
-          }}
-          onCancel={() => setOpen(false)}
-          showVariants={false}
-        />
+        {openProduct && (
+          <ResourcePicker
+            resourceType="Product"
+            showVariants={false}
+            open={true}
+            // actionVerb={ResourcePicker.ActionVerb.Select}
+            onSelection={(resources) => handleSelection(resources)}
+            onCancel={() => setOpenProduct(false)}
+          />
+        )}
+        {openCollection && (
+          <ResourcePicker
+            resourceType="Collection"
+            showVariants={false}
+            open={true}
+            // actionVerb={ResourcePicker.ActionVerb.Select}
+            onSelection={(resources) => handleSelection(resources)}
+            onCancel={() => setOpenCollection(false)}
+          />
+        )}
         <Layout>
           {showBanner && (
             <Layout.Section fullWidth>
@@ -103,7 +131,14 @@ function UpsellPage() {
           <Layout.Section oneHalf>
             <Card
               title="Product Upsells"
-              primaryFooterAction={{ content: "Add Upsell on Product" }}
+              primaryFooterAction={{
+                content: "Add Upsell on Product",
+                onAction: () => {
+                  setOpenProduct(true);
+                  dispatch(removeSelection());
+                  dispatch(addPageType("products"));
+                },
+              }}
               actions={
                 productData && {
                   content: "Manage all",
@@ -172,7 +207,14 @@ function UpsellPage() {
           <Layout.Section oneHalf>
             <Card
               title="Collection Upsells"
-              primaryFooterAction={{ content: "Add Upsell on Collection" }}
+              primaryFooterAction={{
+                content: "Add Upsell on Collection",
+                onAction: () => {
+                  setOpenCollection(true);
+                  dispatch(removeSelection());
+                  dispatch(addPageType("collections"));
+                },
+              }}
               actions={collectionData && [{ content: "Manage all" }]}
             >
               {collectionData && (

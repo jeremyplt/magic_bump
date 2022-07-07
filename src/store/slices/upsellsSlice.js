@@ -19,7 +19,10 @@ const upsellsSlice = createSlice({
       };
     },
     addCollections: (state, action) => {
-      state.value = { ...state.value, collections: [...action.payload] };
+      const collections = [
+        ...new Set([...state.value.collections, ...action.payload]),
+      ];
+      state.value = { ...state.value, collections: collections };
     },
   },
 });

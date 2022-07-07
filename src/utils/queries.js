@@ -39,6 +39,17 @@ const GET_COLLECTIONS_BY_ID = gql`
       ... on Collection {
         title
         id
+        metafield(namespace: "collection", key: "upsell") {
+          key
+          type
+          namespace
+          value
+        }
+        image {
+          id
+          originalSrc
+          altText
+        }
       }
     }
   }

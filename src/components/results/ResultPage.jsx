@@ -15,7 +15,7 @@ import {
   Toast,
 } from "@shopify/polaris";
 import { removeAllSelectedUpsells } from "../../store/slices/selectedUpsellsSlice.js";
-import { addProducts } from "../../store/slices/upsellsSlice";
+import { addProducts, addCollections } from "../../store/slices/upsellsSlice";
 import { toggleActive } from "../../store/slices/toastSlice";
 import {
   ADD_PRODUCT_METAFIELD,
@@ -57,6 +57,7 @@ const ResultPage = () => {
           },
         });
       }
+      dispatch(addCollections(Object.keys(selectedUpsells)));
     } else {
       for (const key in selectedUpsells) {
         addProductMetafield({
@@ -91,7 +92,7 @@ const ResultPage = () => {
   }
 
   function goBackButton() {
-    history.push("/");
+    history.goBack();
   }
 
   return (

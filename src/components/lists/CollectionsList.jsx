@@ -8,6 +8,7 @@ import {
   Button,
   TextContainer,
   Icon,
+  Thumbnail,
 } from "@shopify/polaris";
 import { DeleteMinor } from "@shopify/polaris-icons";
 import {
@@ -81,8 +82,14 @@ export function CollectionsList({ data }) {
         onSelectionChange={setSelectedItems}
         promotedBulkActions={promotedBulkActions}
         renderItem={(item) => {
+          const media = (
+            <Thumbnail
+              source={item.image ? item.imageoriginalSrc : ""}
+              alt={item.image ? item.image.altText : ""}
+            />
+          );
           return (
-            <ResourceList.Item id={item.id}>
+            <ResourceList.Item id={item.id} media={media}>
               <Stack>
                 <Stack.Item fill>
                   <h3>
