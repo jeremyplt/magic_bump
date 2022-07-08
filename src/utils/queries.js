@@ -26,7 +26,11 @@ const GET_PRODUCTS_BY_ID = gql`
           }
         }
         metafield(namespace: "product", key: "upsell") {
-          value
+          reference {
+            ... on Product {
+              title
+            }
+          }
         }
       }
     }
@@ -43,7 +47,11 @@ const GET_COLLECTIONS_BY_ID = gql`
           key
           type
           namespace
-          value
+          reference {
+            ... on Product {
+              title
+            }
+          }
         }
         image {
           id

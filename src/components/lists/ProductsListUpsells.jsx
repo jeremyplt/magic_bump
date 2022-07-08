@@ -66,7 +66,7 @@ export function ProductsListUpsells({ data }) {
                         <h3>
                           <TextStyle variation="strong">Upsell</TextStyle>
                         </h3>
-                        {item.metafield.value}
+                        {item.metafield.reference.title}
                       </TextContainer>
                     </Stack.Item>
                     <Stack.Item>

@@ -18,11 +18,11 @@ function Routers(props) {
         <Route path="/upsells/products">
           <ProductsUpsellPage />
         </Route>
-        <Route path="/upsells">
-          <UpsellPage />
-        </Route>
         <Route path="/upsells/collections">
           <CollectionsUpsellPage />
+        </Route>
+        <Route path="/upsells">
+          <UpsellPage />
         </Route>
         <Route path="/results">
           <ResultPage />

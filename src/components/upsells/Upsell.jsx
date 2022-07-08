@@ -7,6 +7,7 @@ import {
   Layout,
   Card,
   TextStyle,
+  TextContainer,
   ResourceList,
   Thumbnail,
   Stack,
@@ -60,10 +61,10 @@ function UpsellPage() {
     dispatch(addSelection(resources.selection.map((product) => product.id)));
   };
 
-  useEffect(() => {
-    console.log("collection data :", collectionData);
-    console.log("collection error :", collectionError);
-  }, [collectionData, collectionError]);
+  // useEffect(() => {
+  //   console.log("product data :", productData);
+  //   console.log("product error :", productError);
+  // }, [productData, productError]);
 
   return (
     <Page fullWidth title="Your Upsells">
@@ -189,6 +190,16 @@ function UpsellPage() {
                               </h3>
                               <div>{price}</div>
                             </Stack.Item>
+                            <Stack.Item>
+                              <TextContainer>
+                                <h3>
+                                  <TextStyle variation="strong">
+                                    Upsell
+                                  </TextStyle>
+                                </h3>
+                                {item.metafield.reference.title}
+                              </TextContainer>
+                            </Stack.Item>
                           </Stack>
                         </ResourceList.Item>
                       );
@@ -215,7 +226,14 @@ function UpsellPage() {
                   dispatch(addPageType("collections"));
                 },
               }}
-              actions={collectionData && [{ content: "Manage all" }]}
+              actions={
+                collectionData && [
+                  {
+                    content: "Manage all",
+                    onAction: () => history.push("/upsells/collections"),
+                  },
+                ]
+              }
             >
               {collectionData && (
                 <Card.Section>
@@ -242,6 +260,16 @@ function UpsellPage() {
                                   {item.title}
                                 </TextStyle>
                               </h3>
+                            </Stack.Item>
+                            <Stack.Item>
+                              <TextContainer>
+                                <h3>
+                                  <TextStyle variation="strong">
+                                    Upsell
+                                  </TextStyle>
+                                </h3>
+                                {item.metafield.reference.title}
+                              </TextContainer>
                             </Stack.Item>
                           </Stack>
                         </ResourceList.Item>
