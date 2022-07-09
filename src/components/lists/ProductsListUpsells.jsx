@@ -11,10 +11,11 @@ import {
 import { useDispatch } from "react-redux";
 import React, { useState } from "react";
 import { DeleteMinor } from "@shopify/polaris-icons";
-import { removeSelectedUpsells } from "../../store/slices/selectedUpsellsSlice.js";
+import { removeProducts } from "../../store/slices/upsellsSlice.js";
 
 export function ProductsListUpsells({ data }) {
   const [selectedItems, setSelectedItems] = useState([]);
+  const [upsells, setUpsells] = useState(data.nodes);
   const dispatch = useDispatch();
 
   const promotedBulkActions = [
@@ -23,12 +24,19 @@ export function ProductsListUpsells({ data }) {
     },
   ];
 
+  const removeUpsells = (upsellsToRemove) => {
+    const newUpsells = upsells.filter(
+      (upsell) => !upsellsToRemove.includes(upsell.id)
+    );
+    setUpsells(newUpsells);
+  };
+
   return (
     <React.Fragment>
       <ResourceList // Defines your resource list component
         showHeader
         resourceName={{ singular: "Product", plural: "Products" }}
-        items={data.nodes}
+        items={upsells}
         selectedItems={selectedItems}
         onSelectionChange={setSelectedItems}
         promotedBulkActions={promotedBulkActions}
@@ -72,7 +80,7 @@ export function ProductsListUpsells({ data }) {
                     <Stack.Item>
                       <Button
                         onClick={() => {
-                          dispatch(removeSelectedUpsells([item.id]));
+                          removeUpsells([item.id]);
                         }}
                       >
                         <Icon source={DeleteMinor} color="base" />

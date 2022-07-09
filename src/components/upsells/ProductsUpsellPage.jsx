@@ -6,6 +6,7 @@ import {
   List,
   PageActions,
   Card,
+  Button,
 } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import { useHistory } from "react-router-dom";
@@ -37,10 +38,6 @@ function ProductsUpsellPage() {
     dispatch(addSelection(resources.selection.map((product) => product.id)));
   };
 
-  useEffect(() => {
-    console.log("data", data);
-  }, [data]);
-
   return (
     <Page
       fullWidth
@@ -53,9 +50,11 @@ function ProductsUpsellPage() {
         },
       ]}
       primaryAction={{
-        content: "Add Upsells",
-        onAction: () => setOpen(true),
+        content: "Save",
       }}
+      secondaryActions={
+        <Button onClick={() => setOpen(true)}>Add Upsells</Button>
+      }
       title="Product Upsells"
       pagination={{
         hasNext: true,
@@ -110,8 +109,7 @@ function ProductsUpsellPage() {
       </Layout>
       <PageActions
         primaryAction={{
-          content: "Add Upsells",
-          onAction: () => setOpen(true),
+          content: "Save",
         }}
       />
     </Page>

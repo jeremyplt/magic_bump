@@ -41,10 +41,6 @@ function CollectionsUpsellPage() {
     );
   };
 
-  useEffect(() => {
-    console.log("data:", data);
-  }, [data]);
-
   return (
     <Page
       fullWidth

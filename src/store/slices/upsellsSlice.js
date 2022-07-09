@@ -18,6 +18,11 @@ const upsellsSlice = createSlice({
         products: products,
       };
     },
+    removeProducts: (state, action) => {
+      state.value.products = state.value.products.filter(
+        (id) => !action.payload.includes(id)
+      );
+    },
     addCollections: (state, action) => {
       const collections = [
         ...new Set([...state.value.collections, ...action.payload]),
@@ -27,6 +32,7 @@ const upsellsSlice = createSlice({
   },
 });
 
-export const { addProducts, addCollections } = upsellsSlice.actions;
+export const { addProducts, addCollections, removeProducts } =
+  upsellsSlice.actions;
 
 export default upsellsSlice.reducer;
