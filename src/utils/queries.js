@@ -113,6 +113,16 @@ const ADD_TAG_TO_PRODUCT = gql`
   }
 `;
 
+const ADD_UPSELL_ALL_PRODUCTS = gql`
+  mutation ($metafields: MetafieldsSetInput!) {
+    metafieldsSet(metafields: $metafields) {
+      metafields {
+        id
+      }
+    }
+  }
+`;
+
 const GET_SHOP_INFOS = gql`
   query getShopInfos {
     shop {
@@ -200,4 +210,5 @@ export {
   ADD_PRODUCT_METAFIELD,
   ADD_COLLECTION_METAFIELD,
   ADD_TAG_TO_PRODUCT,
+  ADD_UPSELL_ALL_PRODUCTS,
 };

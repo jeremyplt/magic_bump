@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { useHistory } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -21,13 +21,16 @@ import {
   removeSelection,
   addSelection,
 } from "../../store/slices/selectionSlice";
+import { ADD_UPSELL_ALL_PRODUCTS } from "../../utils/queries";
 
 const img = "https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg";
 
 function UpsellPage() {
   const [showBanner, setShowBanner] = useState(true);
   const [openProduct, setOpenProduct] = useState(false);
+  const [openAllProduct, setOpenAllProduct] = useState(false);
   const [openCollection, setOpenCollection] = useState(false);
+  const [addUpsellAllProducts] = useMutation(ADD_UPSELL_ALL_PRODUCTS);
 
   const history = useHistory();
   const dispatch = useDispatch();
@@ -61,6 +64,11 @@ function UpsellPage() {
     dispatch(addSelection(resources.selection.map((product) => product.id)));
   };
 
+  const saveUpsellAllProducts = (resources) => {
+    const productId = resources.selection[0].id;
+    addUpsellAllProducts(productId);
+  };
+
   // useEffect(() => {
   //   console.log("product data :", productData);
   //   console.log("product error :", productError);
@@ -76,6 +84,17 @@ function UpsellPage() {
             open={true}
             // actionVerb={ResourcePicker.ActionVerb.Select}
             onSelection={(resources) => handleSelection(resources)}
+            onCancel={() => setOpenProduct(false)}
+          />
+        )}
+        {openAllProduct && (
+          <ResourcePicker
+            resourceType="Product"
+            showVariants={false}
+            open={true}
+            selectMultiple={false}
+            // actionVerb={ResourcePicker.ActionVerb.Select}
+            onSelection={(resources) => saveUpsellAllProducts(resources)}
             onCancel={() => setOpenProduct(false)}
           />
         )}
@@ -287,7 +306,15 @@ function UpsellPage() {
             </Card>
           </Layout.Section>
           <Layout.Section>
-            <Card title="All Products" actions={[{ content: "Add Upsell" }]}>
+            <Card
+              title="All Products"
+              actions={[
+                {
+                  content: "Add Upsell",
+                  onAction: () => setOpenAllProduct(true),
+                },
+              ]}
+            >
               <Card.Section>
                 <Stack>
                   <Stack.Item fill>
