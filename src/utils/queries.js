@@ -114,10 +114,17 @@ const ADD_TAG_TO_PRODUCT = gql`
 `;
 
 const ADD_UPSELL_ALL_PRODUCTS = gql`
-  mutation ($metafields: MetafieldsSetInput!) {
+  mutation ($metafields: [MetafieldsSetInput!]!) {
     metafieldsSet(metafields: $metafields) {
       metafields {
-        id
+        namespace
+        key
+        value
+        type
+      }
+      userErrors {
+        field
+        message
       }
     }
   }
@@ -165,6 +172,13 @@ const GET_SHOP_INFOS = gql`
             id
           }
         }
+      }
+    }
+    currentAppInstallation {
+      id
+      metafield(namespace: "checkbox_global", key: "upsell") {
+        id
+        value
       }
     }
   }

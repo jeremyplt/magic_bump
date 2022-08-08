@@ -3,18 +3,22 @@ import { gql, useQuery } from "@apollo/client";
 import { updateShop } from "../services/ShopService";
 import { useDispatch, useSelector } from "react-redux";
 import { addShop } from "../store/slices/shopSlice.js";
+import { addCurrentAppInstallation } from "../store/slices/appSlice.js";
 import { addCollections, addProducts } from "../store/slices/upsellsSlice";
 import { GET_SHOP_INFOS } from "../utils/queries";
 
 // Adding more informations about the shop in the DB
 function GetShopData() {
   const { data, error } = useQuery(GET_SHOP_INFOS);
+
   const shopState = useSelector((state) => state.shop.value);
   const dispatch = useDispatch();
 
   useEffect(() => {
     if (data) {
+      console.log("data", data);
       const shop = data.shop;
+      const currentAppInstallation = data.currentAppInstallation;
       const productsIds = data.products.edges.map((product) => product.node.id);
       const collections = data.collections.edges;
       const sortedCollections = collections.filter(
@@ -23,7 +27,7 @@ function GetShopData() {
       const sortedCollectionsIds = sortedCollections.map(
         (collection) => collection.node.id
       );
-
+      dispatch(addCurrentAppInstallation(currentAppInstallation));
       dispatch(addShop(shop));
       if (sortedCollectionsIds.length > 0)
         dispatch(addCollections(sortedCollectionsIds));

@@ -14,14 +14,17 @@ import {
   Banner,
 } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
-import { GET_PRODUCTS_BY_ID, GET_COLLECTIONS_BY_ID } from "../../utils/queries";
+import {
+  GET_PRODUCTS_BY_ID,
+  GET_COLLECTIONS_BY_ID,
+  ADD_UPSELL_ALL_PRODUCTS,
+} from "../../utils/queries";
 import ProductsListSkeleton from "../skeletons/ProductsListSkeleton";
 import { addPageType } from "../../store/slices/pageTypeSlice";
 import {
   removeSelection,
   addSelection,
 } from "../../store/slices/selectionSlice";
-import { ADD_UPSELL_ALL_PRODUCTS } from "../../utils/queries";
 
 const img = "https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg";
 
@@ -36,6 +39,7 @@ function UpsellPage() {
   const dispatch = useDispatch();
 
   const upsells = useSelector((state) => state.upsells.value);
+  const appInstallationId = useSelector((state) => state.app.value.id);
   const productUpsells = upsells.products;
   const collectionUpsells = upsells.collections;
 
@@ -66,7 +70,20 @@ function UpsellPage() {
 
   const saveUpsellAllProducts = (resources) => {
     const productId = resources.selection[0].id;
-    addUpsellAllProducts(productId);
+    addUpsellAllProducts({
+      variables: {
+        metafields: [
+          {
+            ownerId: appInstallationId,
+            namespace: "checkbox_global",
+            key: "upsell",
+            value: productId,
+            type: "product_reference",
+          },
+        ],
+      },
+    });
+    console.log("done");
   };
 
   // useEffect(() => {
