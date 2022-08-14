@@ -12,19 +12,27 @@ import {
   Thumbnail,
   Stack,
   Banner,
+  Button,
+  Icon,
 } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import {
   GET_PRODUCTS_BY_ID,
   GET_COLLECTIONS_BY_ID,
   ADD_UPSELL_ALL_PRODUCTS,
+  REMOVE_GLOBAL_UPSELL,
 } from "../../utils/queries";
+import { DeleteMinor } from "@shopify/polaris-icons";
 import ProductsListSkeleton from "../skeletons/ProductsListSkeleton";
 import { addPageType } from "../../store/slices/pageTypeSlice";
 import {
   removeSelection,
   addSelection,
 } from "../../store/slices/selectionSlice";
+import {
+  addGlobalUpsell,
+  removeGlobalUpsell,
+} from "../../store/slices/appSlice";
 
 const img = "https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg";
 
@@ -33,13 +41,20 @@ function UpsellPage() {
   const [openProduct, setOpenProduct] = useState(false);
   const [openAllProduct, setOpenAllProduct] = useState(false);
   const [openCollection, setOpenCollection] = useState(false);
+
   const [addUpsellAllProducts] = useMutation(ADD_UPSELL_ALL_PRODUCTS);
+  const [removeGlobalUpsellMetafield] = useMutation(REMOVE_GLOBAL_UPSELL);
 
   const history = useHistory();
   const dispatch = useDispatch();
 
   const upsells = useSelector((state) => state.upsells.value);
+  const globalUpsellValue = [
+    useSelector((state) => state.app?.value.metafield?.value),
+  ];
+  const globalUpsellId = useSelector((state) => state.app?.value.metafield?.id);
   const appInstallationId = useSelector((state) => state.app.value.id);
+
   const productUpsells = upsells.products;
   const collectionUpsells = upsells.collections;
 
@@ -53,6 +68,15 @@ function UpsellPage() {
   });
 
   const {
+    data: globalProductData,
+    loading: globalProductLoading,
+    error: globalProductError,
+  } = useQuery(GET_PRODUCTS_BY_ID, {
+    skip: globalUpsellValue.length === 0,
+    variables: { ids: globalUpsellValue },
+  });
+
+  const {
     data: collectionData,
     loading: collectionLoading,
     error: collectionError,
@@ -61,35 +85,60 @@ function UpsellPage() {
     variables: { ids: collectionUpsells },
   });
 
+  const globalUpsellActions = [
+    {
+      content: "Add Upsell",
+      onAction: () => setOpenAllProduct(true),
+    },
+    {
+      content: "Remove Upsell",
+      onAction: () => removeUpsellAllProducts(globalUpsellId),
+    },
+  ];
+
   const handleSelection = (resources) => {
     history.push("/results");
     setOpenProduct(false);
+    setOpenAllProduct(false);
     setOpenCollection(false);
     dispatch(addSelection(resources.selection.map((product) => product.id)));
   };
 
-  const saveUpsellAllProducts = (resources) => {
-    const productId = resources.selection[0].id;
-    addUpsellAllProducts({
+  const saveUpsellAllProducts = async (resources) => {
+    const value = resources.selection[0].id;
+    const payload = await addUpsellAllProducts({
       variables: {
         metafields: [
           {
             ownerId: appInstallationId,
             namespace: "checkbox_global",
             key: "upsell",
-            value: productId,
+            value: value,
             type: "product_reference",
           },
         ],
       },
     });
-    console.log("done");
+    const id = payload.data.metafieldsSet.metafields[0].id;
+    dispatch(addGlobalUpsell({ value, id }));
+    setOpenAllProduct(false);
   };
 
-  // useEffect(() => {
-  //   console.log("product data :", productData);
-  //   console.log("product error :", productError);
-  // }, [productData, productError]);
+  const removeUpsellAllProducts = (id) => {
+    removeGlobalUpsellMetafield({
+      variables: {
+        input: {
+          id: id,
+        },
+      },
+    });
+    dispatch(removeGlobalUpsell());
+  };
+
+  useEffect(() => {
+    console.log("global data :", globalProductData);
+    console.log("global error :", globalProductError);
+  }, [globalProductData, globalProductError]);
 
   return (
     <Page fullWidth title="Your Upsells">
@@ -112,7 +161,7 @@ function UpsellPage() {
             selectMultiple={false}
             // actionVerb={ResourcePicker.ActionVerb.Select}
             onSelection={(resources) => saveUpsellAllProducts(resources)}
-            onCancel={() => setOpenProduct(false)}
+            onCancel={() => setOpenAllProduct(false)}
           />
         )}
         {openCollection && (
@@ -326,10 +375,9 @@ function UpsellPage() {
             <Card
               title="All Products"
               actions={[
-                {
-                  content: "Add Upsell",
-                  onAction: () => setOpenAllProduct(true),
-                },
+                globalProductData?.nodes.length === 0
+                  ? globalUpsellActions[0]
+                  : globalUpsellActions[1],
               ]}
             >
               <Card.Section>
@@ -343,6 +391,79 @@ function UpsellPage() {
                   </Stack.Item>
                   <Stack.Item></Stack.Item>
                 </Stack>
+              </Card.Section>
+              <Card.Section>
+                {globalProductData && (
+                  <ResourceList // Defines your resource list component
+                    resourceName={{ singular: "Product", plural: "Products" }}
+                    items={globalProductData.nodes}
+                    renderItem={(item) => {
+                      const media = (
+                        <Thumbnail
+                          source={
+                            item.images.edges[0]
+                              ? item.images.edges[0].node.originalSrc
+                              : ""
+                          }
+                          alt={
+                            item.images.edges[0]
+                              ? item.images.edges[0].node.altText
+                              : ""
+                          }
+                        />
+                      );
+                      const price = item.variants.edges[0].node.price;
+                      return (
+                        <ResourceList.Item
+                          id={item.id}
+                          media={media}
+                          accessibilityLabel={`View details for ${item.title}`}
+                        >
+                          <Stack>
+                            <Stack.Item fill>
+                              <h3>
+                                <TextStyle variation="strong">
+                                  {item.title}
+                                </TextStyle>
+                              </h3>
+                              <div>{price}</div>
+                            </Stack.Item>
+                            <Stack.Item>
+                              <Stack>
+                                <Stack.Item>
+                                  <Button
+                                    onClick={() => {
+                                      setOpenAllProduct(true);
+                                    }}
+                                  >
+                                    Update
+                                  </Button>
+                                </Stack.Item>
+                                <Stack.Item>
+                                  <Button
+                                    onClick={() => {
+                                      removeUpsellAllProducts(globalUpsellId);
+                                    }}
+                                  >
+                                    <Icon source={DeleteMinor} color="base" />
+                                  </Button>
+                                </Stack.Item>
+                              </Stack>
+                            </Stack.Item>
+                          </Stack>
+                        </ResourceList.Item>
+                      );
+                    }}
+                  />
+                )}
+                {globalProductLoading && <ProductsListSkeleton />}
+                {globalProductData?.nodes.length === 0 && (
+                  <Layout>
+                    <Layout.Section>
+                      There is currently no global upsell set up.
+                    </Layout.Section>
+                  </Layout>
+                )}
               </Card.Section>
             </Card>
           </Layout.Section>

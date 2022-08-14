@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useMutation } from "@apollo/client";
 import {
   Page,
   Layout,
@@ -10,6 +11,8 @@ import {
   Heading,
   Frame,
   Toast,
+  Stack,
+  Button,
 } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import { useHistory } from "react-router-dom";
@@ -20,18 +23,26 @@ import {
 } from "../../store/slices/selectionSlice.js";
 import { addPageType } from "../../store/slices/pageTypeSlice.js";
 import { toggleActive } from "../../store/slices/toastSlice";
+import { ADD_UPSELL_ALL_PRODUCTS } from "../../utils/queries.js";
 
 const img = "https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg";
 
 export function EmptyStatePage() {
   const [openProduct, setOpenProduct] = useState(false);
   const [openCollection, setOpenCollection] = useState(false);
+  const [openUpsell, setOpenUpsell] = useState(false);
   const [showBanner, setShowBanner] = useState(true);
+
+  const [addUpsellAllProducts] = useMutation(ADD_UPSELL_ALL_PRODUCTS);
 
   const history = useHistory();
   const dispatch = useDispatch();
 
   const shopUpsells = useSelector((state) => state.upsells.value);
+  const globalUpsell = [
+    useSelector((state) => state.app?.value.metafield?.value),
+  ];
+  const appInstallationId = useSelector((state) => state.app.value.id);
   const active = useSelector((state) => state.toast.value);
 
   const toastMarkup = active ? (
@@ -46,7 +57,25 @@ export function EmptyStatePage() {
     history.push("/results");
     setOpenProduct(false);
     setOpenCollection(false);
+    setOpenUpsell(false);
     dispatch(addSelection(resources.selection.map((product) => product.id)));
+  };
+
+  const saveUpsellAllProducts = (resources) => {
+    const productId = resources.selection[0].id;
+    addUpsellAllProducts({
+      variables: {
+        metafields: [
+          {
+            ownerId: appInstallationId,
+            namespace: "checkbox_global",
+            key: "upsell",
+            value: productId,
+            type: "product_reference",
+          },
+        ],
+      },
+    });
   };
 
   return (
@@ -57,9 +86,17 @@ export function EmptyStatePage() {
             resourceType="Product"
             showVariants={false}
             open={true}
-            // actionVerb={ResourcePicker.ActionVerb.Select}
             onSelection={(resources) => handleSelection(resources)}
             onCancel={() => setOpenProduct(false)}
+          />
+        )}
+        {openUpsell && (
+          <ResourcePicker
+            resourceType="Product"
+            showVariants={false}
+            open={true}
+            onSelection={(resources) => saveUpsellAllProducts(resources)}
+            onCancel={() => setOpenUpsell(false)}
           />
         )}
         {openCollection && (
@@ -67,7 +104,6 @@ export function EmptyStatePage() {
             resourceType="Collection"
             showVariants={false}
             open={true}
-            // actionVerb={ResourcePicker.ActionVerb.Select}
             onSelection={(resources) => handleSelection(resources)}
             onCancel={() => setOpenCollection(false)}
           />
@@ -85,19 +121,21 @@ export function EmptyStatePage() {
           </Layout.Section>
           <Layout.Section>
             {shopUpsells.products.length > 0 ||
-            shopUpsells.collections.length > 0 ? (
+            shopUpsells.collections.length > 0 ||
+            globalUpsell ? (
               <Banner title="Step 1 of 3" status="success">
                 <p>You have successfully set up your first upsells!</p>
               </Banner>
             ) : (
-              <Card title="Step 1 of 3: Select products you want to add a bump on">
+              <Card title="Step 1 of 3: Select products you want to add an upsell on">
                 <Card.Section>
                   <p>
-                    Bump will be displayed only on the product page you select.
-                    You can add or remove products later.
+                    Upsells will be displayed only on the products/collections
+                    you will select. You will be able to choose upsells for each
+                    product in the next step.
                   </p>
                 </Card.Section>
-                <Card.Section>
+                <Card.Section title="Option 1: Add different Upsell for a selection of products/collections">
                   <Layout>
                     <Layout.Section oneThird>
                       <EmptyState
@@ -113,7 +151,10 @@ export function EmptyStatePage() {
                         image={img}
                         imageContained
                       >
-                        <p>Select a single product or specific products.</p>
+                        <p>
+                          Select one or more products and then choose an upsell
+                          for each one.
+                        </p>
                       </EmptyState>
                     </Layout.Section>
                     <Layout.Section oneThird>
@@ -131,7 +172,8 @@ export function EmptyStatePage() {
                         imageContained
                       >
                         <p>
-                          Select all the products of one or more collections.
+                          Select one or more collections and then choose an
+                          upsell for each one.
                         </p>
                       </EmptyState>
                     </Layout.Section>
@@ -150,11 +192,32 @@ export function EmptyStatePage() {
                         imageContained
                       >
                         <p>
-                          Add a bump on all your products in only few clicks.
+                          Select all products and choose a specific upsell for
+                          each one.
                         </p>
                       </EmptyState>
                     </Layout.Section>
                   </Layout>
+                </Card.Section>
+                <Card.Section title="Option 2: Add the same upsell for all the product">
+                  <Stack>
+                    <Stack.Item fill>
+                      <p style={{ marginTop: 15 }}>
+                        Choose a global upsell that will be displayed on all the
+                        available products of your store.
+                      </p>
+                    </Stack.Item>
+                    <Stack.Item>
+                      <Button
+                        primary
+                        onClick={() => {
+                          setOpenUpsell(true);
+                        }}
+                      >
+                        Add global Upsell
+                      </Button>
+                    </Stack.Item>
+                  </Stack>
                 </Card.Section>
               </Card>
             )}

@@ -16,7 +16,6 @@ function GetShopData() {
 
   useEffect(() => {
     if (data) {
-      console.log("data", data);
       const shop = data.shop;
       const currentAppInstallation = data.currentAppInstallation;
       const productsIds = data.products.edges.map((product) => product.node.id);

@@ -117,11 +117,24 @@ const ADD_UPSELL_ALL_PRODUCTS = gql`
   mutation ($metafields: [MetafieldsSetInput!]!) {
     metafieldsSet(metafields: $metafields) {
       metafields {
+        id
         namespace
         key
         value
         type
       }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
+
+const REMOVE_GLOBAL_UPSELL = gql`
+  mutation metafieldDelete($input: MetafieldDeleteInput!) {
+    metafieldDelete(input: $input) {
+      deletedId
       userErrors {
         field
         message
@@ -220,6 +233,7 @@ export {
   GET_SHOP_INFOS,
   GET_PRODUCTS_BY_ID,
   GET_ALL_PRODUCTS_BY_ID,
+  REMOVE_GLOBAL_UPSELL,
   GET_COLLECTIONS_BY_ID,
   ADD_PRODUCT_METAFIELD,
   ADD_COLLECTION_METAFIELD,
