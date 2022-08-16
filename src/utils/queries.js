@@ -26,6 +26,8 @@ const GET_PRODUCTS_BY_ID = gql`
           }
         }
         metafield(namespace: "product", key: "upsell") {
+          id
+          value
           reference {
             ... on Product {
               title
@@ -113,6 +115,20 @@ const ADD_TAG_TO_PRODUCT = gql`
   }
 `;
 
+const REMOVE_TAG_TO_PRODUCT = gql`
+  mutation tagsRemove($id: ID!, $tags: [String!]!) {
+    tagsRemove(id: $id, tags: $tags) {
+      node {
+        id
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
+
 const ADD_UPSELL_ALL_PRODUCTS = gql`
   mutation ($metafields: [MetafieldsSetInput!]!) {
     metafieldsSet(metafields: $metafields) {
@@ -131,7 +147,7 @@ const ADD_UPSELL_ALL_PRODUCTS = gql`
   }
 `;
 
-const REMOVE_GLOBAL_UPSELL = gql`
+const REMOVE_METAFIELD = gql`
   mutation metafieldDelete($input: MetafieldDeleteInput!) {
     metafieldDelete(input: $input) {
       deletedId
@@ -233,10 +249,11 @@ export {
   GET_SHOP_INFOS,
   GET_PRODUCTS_BY_ID,
   GET_ALL_PRODUCTS_BY_ID,
-  REMOVE_GLOBAL_UPSELL,
+  REMOVE_METAFIELD,
   GET_COLLECTIONS_BY_ID,
   ADD_PRODUCT_METAFIELD,
   ADD_COLLECTION_METAFIELD,
   ADD_TAG_TO_PRODUCT,
+  REMOVE_TAG_TO_PRODUCT,
   ADD_UPSELL_ALL_PRODUCTS,
 };

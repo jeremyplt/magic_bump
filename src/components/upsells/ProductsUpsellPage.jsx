@@ -7,35 +7,30 @@ import {
   PageActions,
   Card,
   Button,
+  Icon,
 } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import { useHistory } from "react-router-dom";
-import { useQuery } from "@apollo/client";
-import { GET_PRODUCTS_BY_ID } from "../../utils/queries";
 import { useSelector, useDispatch } from "react-redux";
-import ProductsListSkeleton from "../skeletons/ProductsListSkeleton";
+
 import { addSelection } from "../../store/slices/selectionSlice";
 import { ProductsListUpsells } from "../lists/ProductsListUpsells";
 import { addPageType } from "../../store/slices/pageTypeSlice";
+import { UndoMajor } from "@shopify/polaris-icons";
 
 function ProductsUpsellPage() {
   const [showBanner, setShowBanner] = useState(true);
   const [open, setOpen] = useState(false);
+  const [temporaryUpsells, setTemporaryUpsells] = useState([]);
 
   const productUpsells = useSelector((state) => state.upsells.value.products);
-
-  const { data, loading, error } = useQuery(GET_PRODUCTS_BY_ID, {
-    variables: { ids: productUpsells },
-  });
 
   const history = useHistory();
   const dispatch = useDispatch();
 
   const handleSelection = (resources) => {
-    history.push("/results");
+    setTemporaryUpsells([...resources.selection, ...temporaryUpsells]);
     setOpen(false);
-    dispatch(addPageType("products"));
-    dispatch(addSelection(resources.selection.map((product) => product.id)));
   };
 
   return (
@@ -50,10 +45,13 @@ function ProductsUpsellPage() {
         },
       ]}
       primaryAction={{
-        content: "Save",
+        content: "Add Upsell",
+        onAction: () => setOpen(true),
       }}
       secondaryActions={
-        <Button onClick={() => setOpen(true)}>Add Upsells</Button>
+        <Button disabled>
+          <Icon source={UndoMajor} color="base" />
+        </Button>
       }
       title="Product Upsells"
       pagination={{
@@ -64,7 +62,6 @@ function ProductsUpsellPage() {
         resourceType="Product"
         showVariants={false}
         open={open}
-        // actionVerb={ResourcePicker.ActionVerb.Select}
         onSelection={(resources) => handleSelection(resources)}
         onCancel={() => setOpen(false)}
       />
@@ -98,18 +95,19 @@ function ProductsUpsellPage() {
 
         <Layout.Section>
           <Card>
-            {data && <ProductsListUpsells data={data} />}
-            {loading && (
-              <div style={{ padding: "25px" }}>
-                <ProductsListSkeleton />
-              </div>
-            )}
+            {
+              <ProductsListUpsells
+                temporaryUpsells={temporaryUpsells}
+                setTemporaryUpsells={setTemporaryUpsells}
+              />
+            }
           </Card>
         </Layout.Section>
       </Layout>
       <PageActions
         primaryAction={{
-          content: "Save",
+          content: "Add Upsell",
+          onAction: () => setOpen(true),
         }}
       />
     </Page>

@@ -16,10 +16,7 @@ import {
   Icon,
 } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
-import {
-  ADD_UPSELL_ALL_PRODUCTS,
-  REMOVE_GLOBAL_UPSELL,
-} from "../../utils/queries";
+import { ADD_UPSELL_ALL_PRODUCTS, REMOVE_METAFIELD } from "../../utils/queries";
 import { DeleteMinor } from "@shopify/polaris-icons";
 import ProductsListSkeleton from "../skeletons/ProductsListSkeleton";
 import { addPageType } from "../../store/slices/pageTypeSlice";
@@ -45,7 +42,7 @@ function UpsellPage() {
   const [openCollection, setOpenCollection] = useState(false);
 
   const [addUpsellAllProducts] = useMutation(ADD_UPSELL_ALL_PRODUCTS);
-  const [removeGlobalUpsellMetafield] = useMutation(REMOVE_GLOBAL_UPSELL);
+  const [removeMetafield] = useMutation(REMOVE_METAFIELD);
 
   const history = useHistory();
   const dispatch = useDispatch();
@@ -110,7 +107,7 @@ function UpsellPage() {
   };
 
   const removeUpsellAllProducts = (id) => {
-    removeGlobalUpsellMetafield({
+    removeMetafield({
       variables: {
         input: {
           id: id,
@@ -260,7 +257,7 @@ function UpsellPage() {
                                     Upsell
                                   </TextStyle>
                                 </h3>
-                                {item.metafield.reference.title}
+                                {item.metafield?.reference?.title}
                               </TextContainer>
                             </Stack.Item>
                           </Stack>

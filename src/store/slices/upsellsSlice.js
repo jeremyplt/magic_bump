@@ -44,6 +44,12 @@ const upsellsSlice = createSlice({
       );
       state.value = { ...state.value, products: [...products] };
     },
+    removeProducts: (state, action) => {
+      const products = state.value.products.filter(
+        (item) => !action.payload.includes(item.id)
+      );
+      state.value = { ...state.value, products: [...products] };
+    },
     addCollections: (state, action) => {
       const newState = [...state.value.collections, ...action.payload];
       const collections = Array.from(new Set(newState.map((a) => a.id))).map(
@@ -75,6 +81,7 @@ export const {
   addProductsIds,
   addCollectionsIds,
   removeProductsIds,
+  removeProducts,
   addProducts,
   addCollections,
   addGlobal,
