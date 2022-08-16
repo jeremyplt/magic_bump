@@ -4,35 +4,84 @@ const upsellsSlice = createSlice({
   name: "upsells",
   initialState: {
     value: {
+      productsIds: [],
+      collectionsIds: [],
       products: [],
       collections: [],
+      global: [],
+      productLoading: false,
+      collectionLoading: false,
+      globalProductLoading: false,
     },
   },
   reducers: {
-    addProducts: (state, action) => {
-      const products = [
-        ...new Set([...state.value.products, ...action.payload]),
+    addProductsIds: (state, action) => {
+      const productsIds = [
+        ...new Set([...state.value.productsIds, ...action.payload]),
       ];
       state.value = {
         ...state.value,
-        products: products,
+        productsIds: productsIds,
       };
     },
-    removeProducts: (state, action) => {
-      state.value.products = state.value.products.filter(
+    removeProductsIds: (state, action) => {
+      state.value.productsIds = state.value.productsIds.filter(
         (id) => !action.payload.includes(id)
       );
     },
-    addCollections: (state, action) => {
-      const collections = [
-        ...new Set([...state.value.collections, ...action.payload]),
+    addCollectionsIds: (state, action) => {
+      const collectionsIds = [
+        ...new Set([...state.value.collectionsIds, ...action.payload]),
       ];
-      state.value = { ...state.value, collections: collections };
+      state.value = { ...state.value, collectionsIds: collectionsIds };
+    },
+    addProducts: (state, action) => {
+      const newState = [...state.value.products, ...action.payload];
+      const products = Array.from(new Set(newState.map((a) => a.id))).map(
+        (id) => {
+          return newState.find((a) => a.id === id);
+        }
+      );
+      state.value = { ...state.value, products: [...products] };
+    },
+    addCollections: (state, action) => {
+      const newState = [...state.value.collections, ...action.payload];
+      const collections = Array.from(new Set(newState.map((a) => a.id))).map(
+        (id) => {
+          return newState.find((a) => a.id === id);
+        }
+      );
+      state.value = { ...state.value, collections: [...collections] };
+    },
+    addGlobal: (state, action) => {
+      state.value = { ...state.value, global: [...action.payload] };
+    },
+    removeGlobalUpsellProduct: (state) => {
+      state.value = { ...state.value, global: [null] };
+    },
+    changeProductLoading: (state, action) => {
+      state.value = { ...state.value, productLoading: action.payload };
+    },
+    changeCollectionLoading: (state, action) => {
+      state.value = { ...state.value, collectionLoading: action.payload };
+    },
+    changeGlobalProductLoading: (state, action) => {
+      state.value = { ...state.value, globalProductLoading: action.payload };
     },
   },
 });
 
-export const { addProducts, addCollections, removeProducts } =
-  upsellsSlice.actions;
+export const {
+  addProductsIds,
+  addCollectionsIds,
+  removeProductsIds,
+  addProducts,
+  addCollections,
+  addGlobal,
+  removeGlobalUpsellProduct,
+  changeProductLoading,
+  changeCollectionLoading,
+  changeGlobalProductLoading,
+} = upsellsSlice.actions;
 
 export default upsellsSlice.reducer;

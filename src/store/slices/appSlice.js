@@ -13,7 +13,7 @@ const appSlice = createSlice({
         metafield: { value: action.payload.value, id: action.payload.id },
       };
     },
-    removeGlobalUpsell: (state) => {
+    removeGlobalUpsellId: (state) => {
       const newState = delete state.value.metafield;
       state = { ...newState };
     },
@@ -23,7 +23,7 @@ const appSlice = createSlice({
 export const {
   addCurrentAppInstallation,
   addGlobalUpsell,
-  removeGlobalUpsell,
+  removeGlobalUpsellId,
 } = appSlice.actions;
 
 export default appSlice.reducer;

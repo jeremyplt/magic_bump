@@ -15,7 +15,10 @@ import {
   Toast,
 } from "@shopify/polaris";
 import { removeAllSelectedUpsells } from "../../store/slices/selectedUpsellsSlice.js";
-import { addProducts, addCollections } from "../../store/slices/upsellsSlice";
+import {
+  addProductsIds,
+  addCollectionsIds,
+} from "../../store/slices/upsellsSlice";
 import { toggleActive } from "../../store/slices/toastSlice";
 import {
   ADD_PRODUCT_METAFIELD,
@@ -57,7 +60,7 @@ const ResultPage = () => {
           },
         });
       }
-      dispatch(addCollections(Object.keys(selectedUpsells)));
+      dispatch(addCollectionsIds(Object.keys(selectedUpsells)));
     } else {
       for (const key in selectedUpsells) {
         addProductMetafield({
@@ -82,7 +85,7 @@ const ResultPage = () => {
           },
         });
       }
-      dispatch(addProducts(Object.keys(selectedUpsells)));
+      dispatch(addProductsIds(Object.keys(selectedUpsells)));
     }
   }
 

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useMutation, useQuery } from "@apollo/client";
+import React, { useState } from "react";
+import { useMutation } from "@apollo/client";
 import { useHistory } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -17,8 +17,6 @@ import {
 } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import {
-  GET_PRODUCTS_BY_ID,
-  GET_COLLECTIONS_BY_ID,
   ADD_UPSELL_ALL_PRODUCTS,
   REMOVE_GLOBAL_UPSELL,
 } from "../../utils/queries";
@@ -31,8 +29,12 @@ import {
 } from "../../store/slices/selectionSlice";
 import {
   addGlobalUpsell,
-  removeGlobalUpsell,
+  removeGlobalUpsellId,
 } from "../../store/slices/appSlice";
+import {
+  removeGlobalUpsellProduct,
+  addGlobal,
+} from "../../store/slices/upsellsSlice";
 
 const img = "https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg";
 
@@ -49,41 +51,23 @@ function UpsellPage() {
   const dispatch = useDispatch();
 
   const upsells = useSelector((state) => state.upsells.value);
-  const globalUpsellValue = [
-    useSelector((state) => state.app?.value.metafield?.value),
-  ];
+
   const globalUpsellId = useSelector((state) => state.app?.value.metafield?.id);
   const appInstallationId = useSelector((state) => state.app.value.id);
 
+  const productLoading = useSelector(
+    (state) => state.upsells.value.productLoading
+  );
+  const collectionLoading = useSelector(
+    (state) => state.upsells.value.collectionLoading
+  );
+  const globalProductLoading = useSelector(
+    (state) => state.upsells.value.globalProductLoading
+  );
+
   const productUpsells = upsells.products;
   const collectionUpsells = upsells.collections;
-
-  const {
-    data: productData,
-    loading: productLoading,
-    error: productError,
-  } = useQuery(GET_PRODUCTS_BY_ID, {
-    skip: productUpsells.length === 0,
-    variables: { ids: productUpsells },
-  });
-
-  const {
-    data: globalProductData,
-    loading: globalProductLoading,
-    error: globalProductError,
-  } = useQuery(GET_PRODUCTS_BY_ID, {
-    skip: globalUpsellValue.length === 0,
-    variables: { ids: globalUpsellValue },
-  });
-
-  const {
-    data: collectionData,
-    loading: collectionLoading,
-    error: collectionError,
-  } = useQuery(GET_COLLECTIONS_BY_ID, {
-    skip: collectionUpsells.length === 0,
-    variables: { ids: collectionUpsells },
-  });
+  const globalUpsell = upsells.global;
 
   const globalUpsellActions = [
     {
@@ -105,6 +89,7 @@ function UpsellPage() {
   };
 
   const saveUpsellAllProducts = async (resources) => {
+    dispatch(addGlobal([resources.selection[0]]));
     const value = resources.selection[0].id;
     const payload = await addUpsellAllProducts({
       variables: {
@@ -132,13 +117,9 @@ function UpsellPage() {
         },
       },
     });
-    dispatch(removeGlobalUpsell());
+    dispatch(removeGlobalUpsellId());
+    dispatch(removeGlobalUpsellProduct());
   };
-
-  useEffect(() => {
-    console.log("global data :", globalProductData);
-    console.log("global error :", globalProductError);
-  }, [globalProductData, globalProductError]);
 
   return (
     <Page fullWidth title="Your Upsells">
@@ -148,7 +129,6 @@ function UpsellPage() {
             resourceType="Product"
             showVariants={false}
             open={true}
-            // actionVerb={ResourcePicker.ActionVerb.Select}
             onSelection={(resources) => handleSelection(resources)}
             onCancel={() => setOpenProduct(false)}
           />
@@ -159,7 +139,6 @@ function UpsellPage() {
             showVariants={false}
             open={true}
             selectMultiple={false}
-            // actionVerb={ResourcePicker.ActionVerb.Select}
             onSelection={(resources) => saveUpsellAllProducts(resources)}
             onCancel={() => setOpenAllProduct(false)}
           />
@@ -169,7 +148,6 @@ function UpsellPage() {
             resourceType="Collection"
             showVariants={false}
             open={true}
-            // actionVerb={ResourcePicker.ActionVerb.Select}
             onSelection={(resources) => handleSelection(resources)}
             onCancel={() => setOpenCollection(false)}
           />
@@ -226,24 +204,24 @@ function UpsellPage() {
                 },
               }}
               actions={
-                productData && {
+                productUpsells.length > 0 && {
                   content: "Manage all",
                   onAction: () => history.push("/upsells/products"),
                 }
               }
             >
-              {productData && (
+              {productUpsells.length > 0 && (
                 <Card.Section>
                   <TextStyle variation="subdued">
-                    6 products with upsells
+                    {productUpsells.length} products with upsells
                   </TextStyle>
                 </Card.Section>
               )}
-              <Card.Section title={productData && "Products"}>
-                {productData && (
-                  <ResourceList // Defines your resource list component
+              <Card.Section title={productUpsells.length > 0 && "Products"}>
+                {productUpsells.length > 0 && (
+                  <ResourceList
                     resourceName={{ singular: "Product", plural: "Products" }}
-                    items={productData.nodes.slice(0, 4)}
+                    items={productUpsells.slice(0, 4)}
                     renderItem={(item) => {
                       const media = (
                         <Thumbnail
@@ -292,7 +270,7 @@ function UpsellPage() {
                   />
                 )}
                 {productLoading && <ProductsListSkeleton />}
-                {!productData && !productLoading && (
+                {productUpsells.length === 0 && !productLoading && (
                   <TextStyle>
                     There is currently no product upsell set up.
                   </TextStyle>
@@ -312,7 +290,7 @@ function UpsellPage() {
                 },
               }}
               actions={
-                collectionData && [
+                collectionUpsells.length > 0 && [
                   {
                     content: "Manage all",
                     onAction: () => history.push("/upsells/collections"),
@@ -320,18 +298,20 @@ function UpsellPage() {
                 ]
               }
             >
-              {collectionData && (
+              {collectionUpsells.length > 0 && (
                 <Card.Section>
                   <TextStyle variation="subdued">
-                    6 collections with upsells
+                    {collectionUpsells.length} collections with upsells
                   </TextStyle>
                 </Card.Section>
               )}
-              <Card.Section title={collectionData && "Collection"}>
-                {collectionData && (
+              <Card.Section
+                title={collectionUpsells.length > 0 && "Collection"}
+              >
+                {collectionUpsells.length > 0 && (
                   <ResourceList // Defines your resource list component
                     resourceName={{ singular: "Product", plural: "Products" }}
-                    items={collectionData.nodes.slice(0, 4)}
+                    items={collectionUpsells.slice(0, 4)}
                     renderItem={(item) => {
                       return (
                         <ResourceList.Item
@@ -363,7 +343,7 @@ function UpsellPage() {
                   />
                 )}
                 {collectionLoading && <ProductsListSkeleton />}
-                {!collectionData && !collectionLoading && (
+                {collectionUpsells.length === 0 && !collectionLoading && (
                   <TextStyle>
                     There is currently no collection upsell set up.
                   </TextStyle>
@@ -375,7 +355,7 @@ function UpsellPage() {
             <Card
               title="All Products"
               actions={[
-                globalProductData?.nodes.length === 0
+                globalUpsell.length === 0
                   ? globalUpsellActions[0]
                   : globalUpsellActions[1],
               ]}
@@ -393,26 +373,28 @@ function UpsellPage() {
                 </Stack>
               </Card.Section>
               <Card.Section>
-                {globalProductData && (
-                  <ResourceList // Defines your resource list component
+                {globalUpsell.length > 0 && (
+                  <ResourceList
                     resourceName={{ singular: "Product", plural: "Products" }}
-                    items={globalProductData.nodes}
+                    items={globalUpsell}
                     renderItem={(item) => {
                       const media = (
                         <Thumbnail
                           source={
-                            item.images.edges[0]
-                              ? item.images.edges[0].node.originalSrc
-                              : ""
+                            item.images.edges
+                              ? item.images.edges[0]?.node.originalSrc
+                              : item.images[0]?.originalSrc
                           }
                           alt={
-                            item.images.edges[0]
-                              ? item.images.edges[0].node.altText
-                              : ""
+                            item.images.edges
+                              ? item.images.edges[0]?.node.altText
+                              : item.images[0]?.altText
                           }
                         />
                       );
-                      const price = item.variants.edges[0].node.price;
+                      const price = item.variants.edges
+                        ? item.variants.edges[0].node.price
+                        : item.variants[0].price;
                       return (
                         <ResourceList.Item
                           id={item.id}
@@ -457,7 +439,7 @@ function UpsellPage() {
                   />
                 )}
                 {globalProductLoading && <ProductsListSkeleton />}
-                {globalProductData?.nodes.length === 0 && (
+                {globalUpsell.length === 0 && !globalProductLoading && (
                   <Layout>
                     <Layout.Section>
                       There is currently no global upsell set up.
