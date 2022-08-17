@@ -8,6 +8,7 @@ const GET_PRODUCTS_BY_ID = gql`
         handle
         descriptionHtml
         id
+        tags
         images(first: 1) {
           edges {
             node {
@@ -28,6 +29,7 @@ const GET_PRODUCTS_BY_ID = gql`
         metafield(namespace: "product", key: "upsell") {
           id
           value
+          updatedAt
           reference {
             ... on Product {
               title
@@ -45,10 +47,10 @@ const GET_COLLECTIONS_BY_ID = gql`
       ... on Collection {
         title
         id
-        metafield(namespace: "collection", key: "upsell") {
-          key
-          type
-          namespace
+        metafield(namespace: "product", key: "upsell") {
+          id
+          value
+          updatedAt
           reference {
             ... on Product {
               title
@@ -68,16 +70,38 @@ const ADD_PRODUCT_METAFIELD = gql`
   mutation ($input: ProductInput!) {
     productUpdate(input: $input) {
       product {
-        metafields(first: 100) {
+        title
+        handle
+        descriptionHtml
+        id
+        tags
+        images(first: 1) {
           edges {
             node {
-              namespace
-              key
-              value
+              id
+              originalSrc
+              altText
             }
           }
         }
-        tags
+        variants(first: 1) {
+          edges {
+            node {
+              price
+              id
+            }
+          }
+        }
+        metafield(namespace: "product", key: "upsell") {
+          id
+          value
+          updatedAt
+          reference {
+            ... on Product {
+              title
+            }
+          }
+        }
       }
     }
   }

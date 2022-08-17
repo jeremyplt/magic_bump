@@ -330,7 +330,7 @@ function UpsellPage() {
                                     Upsell
                                   </TextStyle>
                                 </h3>
-                                {item.metafield.reference.title}
+                                {item.metafield?.reference?.title}
                               </TextContainer>
                             </Stack.Item>
                           </Stack>

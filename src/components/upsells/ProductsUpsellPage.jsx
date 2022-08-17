@@ -40,7 +40,7 @@ function ProductsUpsellPage() {
         {
           content: "Upsells",
           onAction: () => {
-            history.goBack();
+            history.push("/upsells");
           },
         },
       ]}

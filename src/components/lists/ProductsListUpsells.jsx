@@ -16,10 +16,17 @@ import ProductsListSkeleton from "../skeletons/ProductsListSkeleton";
 import {
   removeProducts,
   removeProductsIds,
+  addProductsIds,
+  addProducts,
 } from "../../store/slices/upsellsSlice";
-import { REMOVE_METAFIELD, REMOVE_TAG_TO_PRODUCT } from "../../utils/queries";
+import {
+  REMOVE_METAFIELD,
+  REMOVE_TAG_TO_PRODUCT,
+  ADD_PRODUCT_METAFIELD,
+  ADD_TAG_TO_PRODUCT,
+} from "../../utils/queries";
 
-export function ProductsListUpsells({ temporaryUpsells, setTemporaryUpsell }) {
+export function ProductsListUpsells({ temporaryUpsells, setTemporaryUpsells }) {
   const [selectedItems, setSelectedItems] = useState([]);
   const [productSetup, setProductSetUp] = useState("");
   const [openUpsell, setOpenUpsell] = useState(false);
@@ -31,6 +38,8 @@ export function ProductsListUpsells({ temporaryUpsells, setTemporaryUpsell }) {
 
   const [removeMetafield] = useMutation(REMOVE_METAFIELD);
   const [removeTagToProduct] = useMutation(REMOVE_TAG_TO_PRODUCT);
+  const [addProductMetafield] = useMutation(ADD_PRODUCT_METAFIELD);
+  const [addTagToProduct] = useMutation(ADD_TAG_TO_PRODUCT);
 
   const itemToDisplay = [...temporaryUpsells, ...productUpsells];
 
@@ -62,15 +71,54 @@ export function ProductsListUpsells({ temporaryUpsells, setTemporaryUpsell }) {
     dispatch(removeProductsIds(ids));
   };
 
-  const saveUpsell = (resources) => {
+  const saveUpsell = async (resources) => {
     const upsell = resources.selection[0];
-    // Add the metafield to the product
+
     // Add the tag to the product
+    addTagToProduct({
+      variables: {
+        id: productSetup,
+        tags: ["upsell"],
+      },
+    });
+
+    // Add the metafield to the product
+    addProductMetafield({
+      variables: {
+        input: {
+          id: productSetup,
+          metafields: [
+            {
+              namespace: "product",
+              key: "upsell",
+              value: upsell.id,
+              type: "product_reference",
+            },
+          ],
+        },
+      },
+    });
+
+    const product = temporaryUpsells[0];
+    product.tags = ["upsell"];
+    const date = new Date();
+    product.metafield = {
+      updatedAt: date.toISOString(),
+      reference: { title: upsell.title },
+    };
+
     // Add the id to the state
-    // Fetch the product (thanks to the productSetup ID, I can find it in the temporaryUpsells) and add the metafield then push it to the state at the beggining
+    dispatch(addProductsIds([productSetup]));
+
+    // Add the product to the state
+    dispatch(addProducts([product]));
+
     // Remove the product from the temporary state
-    console.log("upsell", resources);
-    console.log("id", productSetup);
+    const cleanTemporaryUpsells = temporaryUpsells.filter(
+      (item) => item.id !== productSetup
+    );
+    setTemporaryUpsells(cleanTemporaryUpsells);
+
     setOpenUpsell(false);
   };
 

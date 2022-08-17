@@ -36,13 +36,26 @@ const upsellsSlice = createSlice({
       state.value = { ...state.value, collectionsIds: collectionsIds };
     },
     addProducts: (state, action) => {
+      console.log("action payload", action.payload);
       const newState = [...state.value.products, ...action.payload];
       const products = Array.from(new Set(newState.map((a) => a.id))).map(
         (id) => {
           return newState.find((a) => a.id === id);
         }
       );
-      state.value = { ...state.value, products: [...products] };
+
+      const filteredProducts = products.filter((item) =>
+        item?.tags?.includes("upsell")
+      );
+
+      const productsSorted = filteredProducts.sort((a, b) => {
+        const dateA = new Date(a.metafield?.updatedAt);
+        const dateB = new Date(b.metafield?.updatedAt);
+        return dateB - dateA;
+      });
+
+      state.value = { ...state.value, products: [...productsSorted] };
+      console.log("added", productsSorted);
     },
     removeProducts: (state, action) => {
       const products = state.value.products.filter(
