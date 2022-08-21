@@ -68,7 +68,11 @@ function CollectionsUpsellPage() {
       ]}
       primaryAction={{
         content: "Add Upsells",
-        onAction: () => setOpen(true),
+        onAction: () => {
+          setOpen(true);
+          dispatch(removeSelection());
+          dispatch(addPageType("collections"));
+        },
       }}
       title="Collection Upsells"
       pagination={{

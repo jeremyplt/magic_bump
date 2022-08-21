@@ -36,6 +36,7 @@ const ResultPage = () => {
   const history = useHistory();
   const dispatch = useDispatch();
 
+  const selection = useSelector((state) => state.selection.value);
   const pageType = useSelector((state) => state.page.value.type);
   const pageRedirection = useSelector((state) => state.page.value.redirection);
   const selectedUpsells = useSelector((state) => state.selectedUpsells.value);
@@ -178,7 +179,7 @@ const ResultPage = () => {
             {pageType === "products" && <ProductsPage />}
             {pageType === "allProducts" && <AllProductsPage />}
             {pageType === "collections" && <CollectionsPage />}
-            {resourceAlreadyExist && (
+            {resourceAlreadyExist && selection.length === 0 && (
               <div style={{ padding: 20 }}>
                 The products you selected already have an upsell setup. Go back
                 to the previous page and update the upsell of these products.

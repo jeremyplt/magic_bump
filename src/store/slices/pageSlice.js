@@ -10,7 +10,7 @@ const pageSlice = createSlice({
   },
   reducers: {
     addPageType: (state, action) => {
-      state.value = action.payload;
+      state.value.type = action.payload;
     },
     addRedirectionPage: (state, action) => {
       state.value.redirection = action.payload;

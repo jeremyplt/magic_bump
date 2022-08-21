@@ -78,19 +78,26 @@ export function ProductsList({ data }) {
         onSelectionChange={setSelectedItems}
         promotedBulkActions={promotedBulkActions}
         renderItem={(item) => {
-          const media = (
-            <Thumbnail
-              source={
-                item.images.edges[0]
-                  ? item.images.edges[0].node.originalSrc
-                  : ""
-              }
-              alt={
-                item.images.edges[0] ? item.images.edges[0].node.altText : ""
-              }
-            />
-          );
-          const price = item.variants.edges[0].node.price;
+          let source = "";
+          let alt = "";
+
+          if (item.images.edges) {
+            if (item.images.edges[0])
+              source = item.images.edges[0].node.originalSrc;
+          } else if (item.images[0]) {
+            source = item.images[0]?.originalSrc;
+          }
+
+          if (item.images.edges) {
+            if (item.images.edges[0]) alt = item.images.edges[0].node.altText;
+          } else if (item.images[0]) {
+            alt = item.images[0]?.altText;
+          }
+
+          const media = <Thumbnail source={source} alt={alt} />;
+          const price = item.variants.edges
+            ? item.variants.edges[0].node.price
+            : item.variants[0].price;
           return (
             <ResourceList.Item
               id={item.id}
