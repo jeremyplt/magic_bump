@@ -95,7 +95,7 @@ const upsellsSlice = createSlice({
       state.value = { ...state.value, global: [...action.payload] };
     },
     removeGlobalUpsellProduct: (state) => {
-      state.value = { ...state.value, global: [null] };
+      state.value = { ...state.value, global: [] };
     },
     changeProductLoading: (state, action) => {
       state.value = { ...state.value, productLoading: action.payload };

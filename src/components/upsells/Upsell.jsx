@@ -486,7 +486,9 @@ function UpsellPage() {
                     }}
                   />
                 )}
-                {globalProductLoading && <ProductsListSkeleton />}
+                {globalProductLoading && globalUpsell.length === 0 && (
+                  <SingleProductSkeleton />
+                )}
                 {globalUpsell.length === 0 && !globalProductLoading && (
                   <Layout>
                     <Layout.Section>
