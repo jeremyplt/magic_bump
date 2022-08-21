@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useMutation } from "@apollo/client";
 import { useHistory } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -16,10 +16,11 @@ import {
   Icon,
 } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
-import { ADD_UPSELL_ALL_PRODUCTS, REMOVE_METAFIELD } from "../../utils/queries";
+import { SET_METAFIELDS, REMOVE_METAFIELD } from "../../utils/queries";
 import { DeleteMinor } from "@shopify/polaris-icons";
 import ProductsListSkeleton from "../skeletons/ProductsListSkeleton";
-import { addPageType } from "../../store/slices/pageTypeSlice";
+import SingleProductSkeleton from "../skeletons/SingleProductSkeleton";
+import { addPageType, addRedirectionPage } from "../../store/slices/pageSlice";
 import {
   removeSelection,
   addSelection,
@@ -40,8 +41,10 @@ function UpsellPage() {
   const [openProduct, setOpenProduct] = useState(false);
   const [openAllProduct, setOpenAllProduct] = useState(false);
   const [openCollection, setOpenCollection] = useState(false);
+  const [productLoader, setProductLoader] = useState(false);
+  const [collectionLoader, setCollectionLoader] = useState(false);
 
-  const [addUpsellAllProducts] = useMutation(ADD_UPSELL_ALL_PRODUCTS);
+  const [addUpsellAllProducts] = useMutation(SET_METAFIELDS);
   const [removeMetafield] = useMutation(REMOVE_METAFIELD);
 
   const history = useHistory();
@@ -64,6 +67,8 @@ function UpsellPage() {
 
   const productUpsells = upsells.products;
   const collectionUpsells = upsells.collections;
+  const productsIds = upsells.productsIds;
+  const collectionsIds = upsells.collectionsIds;
   const globalUpsell = upsells.global;
 
   const globalUpsellActions = [
@@ -117,6 +122,19 @@ function UpsellPage() {
     dispatch(removeGlobalUpsellId());
     dispatch(removeGlobalUpsellProduct());
   };
+
+  useEffect(() => {
+    if (productLoader === true) setProductLoader(false);
+  }, [productUpsells, productsIds]);
+
+  useEffect(() => {
+    if (collectionLoader === true) setCollectionLoader(false);
+  }, [collectionUpsells, collectionsIds]);
+
+  useEffect(() => {
+    if (productLoading) setProductLoader(true);
+    else if (collectionLoading) setCollectionLoader(true);
+  }, [productLoading, collectionLoading]);
 
   return (
     <Page fullWidth title="Your Upsells">
@@ -196,6 +214,7 @@ function UpsellPage() {
                 content: "Add Upsell on Product",
                 onAction: () => {
                   setOpenProduct(true);
+                  dispatch(addRedirectionPage("/upsells"));
                   dispatch(removeSelection());
                   dispatch(addPageType("products"));
                 },
@@ -266,7 +285,22 @@ function UpsellPage() {
                     }}
                   />
                 )}
-                {productLoading && <ProductsListSkeleton />}
+                {productLoading && productUpsells.length === 0 && (
+                  <ProductsListSkeleton />
+                )}
+                {productLoader &&
+                  productUpsells.length < 4 &&
+                  productUpsells.length !== 0 && (
+                    <div
+                      style={{
+                        paddingLeft: 20,
+                        paddingRight: 20,
+                        paddingTop: 5,
+                      }}
+                    >
+                      <SingleProductSkeleton />
+                    </div>
+                  )}
                 {productUpsells.length === 0 && !productLoading && (
                   <TextStyle>
                     There is currently no product upsell set up.
@@ -282,6 +316,7 @@ function UpsellPage() {
                 content: "Add Upsell on Collection",
                 onAction: () => {
                   setOpenCollection(true);
+                  dispatch(addRedirectionPage("/upsells"));
                   dispatch(removeSelection());
                   dispatch(addPageType("collections"));
                 },
@@ -339,7 +374,23 @@ function UpsellPage() {
                     }}
                   />
                 )}
-                {collectionLoading && <ProductsListSkeleton />}
+
+                {collectionLoading && collectionUpsells.length === 0 && (
+                  <ProductsListSkeleton />
+                )}
+                {collectionLoader &&
+                  collectionUpsells.length < 4 &&
+                  collectionUpsells.length !== 0 && (
+                    <div
+                      style={{
+                        paddingLeft: 20,
+                        paddingRight: 20,
+                        paddingTop: 5,
+                      }}
+                    >
+                      <SingleProductSkeleton />
+                    </div>
+                  )}
                 {collectionUpsells.length === 0 && !collectionLoading && (
                   <TextStyle>
                     There is currently no collection upsell set up.

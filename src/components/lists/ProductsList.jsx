@@ -64,14 +64,13 @@ export function ProductsList({ data }) {
         showVariants={false}
         open={open}
         selectMultiple={false}
-        // actionVerb={ResourcePicker.ActionVerb.Select}
         onSelection={(resources) => {
           setOpen(false);
           handleSelection(resources);
         }}
         onCancel={() => setOpen(false)}
       />
-      <ResourceList // Defines your resource list component
+      <ResourceList
         showHeader
         resourceName={{ singular: "Product", plural: "Products" }}
         items={data.nodes}

@@ -36,12 +36,17 @@ const ResultPage = () => {
   const history = useHistory();
   const dispatch = useDispatch();
 
-  const pageType = useSelector((state) => state.pageType.value);
+  const pageType = useSelector((state) => state.page.value.type);
+  const pageRedirection = useSelector((state) => state.page.value.redirection);
   const selectedUpsells = useSelector((state) => state.selectedUpsells.value);
+  const resourceAlreadyExist = useSelector(
+    (state) => state.upsells.value.resourceAlreadyExist
+  );
 
   let isDisabled = Object.keys(selectedUpsells).length > 0 ? false : true;
 
   function saveUpsells() {
+    console.log("selectedUpsells", selectedUpsells);
     if (pageType === "collections") {
       for (const key in selectedUpsells) {
         addCollectionMetafield({
@@ -94,10 +99,6 @@ const ResultPage = () => {
     setActiveItem("");
   }
 
-  function goBackButton() {
-    history.goBack();
-  }
-
   return (
     <Page
       fullWidth
@@ -106,7 +107,7 @@ const ResultPage = () => {
           content: "Home",
           onAction: () => {
             resetState();
-            goBackButton();
+            history.push(pageRedirection ? pageRedirection : "/");
           },
         },
       ]}
@@ -117,7 +118,7 @@ const ResultPage = () => {
           saveUpsells();
           resetState();
           dispatch(toggleActive());
-          history.push("/");
+          history.push(pageRedirection);
         },
       }}
       title="Upsell setup"
@@ -156,11 +157,33 @@ const ResultPage = () => {
           </Layout.Section>
         )}
 
+        {resourceAlreadyExist && (
+          <Layout.Section>
+            <Banner
+              title="Warning"
+              onDismiss={() => setShowBanner(false)}
+              status="warning"
+            >
+              <p>
+                Some of the product you selected already have an upsell setup.
+                You can update a product by clicking the "Update" button on the
+                Manage Upsells page.
+              </p>
+            </Banner>
+          </Layout.Section>
+        )}
+
         <Layout.Section>
           <Card>
             {pageType === "products" && <ProductsPage />}
             {pageType === "allProducts" && <AllProductsPage />}
             {pageType === "collections" && <CollectionsPage />}
+            {resourceAlreadyExist && (
+              <div style={{ padding: 20 }}>
+                The products you selected already have an upsell setup. Go back
+                to the previous page and update the upsell of these products.
+              </div>
+            )}
           </Card>
         </Layout.Section>
       </Layout>
@@ -172,7 +195,7 @@ const ResultPage = () => {
             saveUpsells();
             resetState();
             dispatch(toggleActive());
-            history.push("/");
+            history.push(pageRedirection ? pageRedirection : "/");
           },
         }}
       />

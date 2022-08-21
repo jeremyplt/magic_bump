@@ -21,9 +21,12 @@ import {
   addSelection,
   removeSelection,
 } from "../../store/slices/selectionSlice.js";
-import { addPageType } from "../../store/slices/pageTypeSlice.js";
+import {
+  addPageType,
+  addRedirectionPage,
+} from "../../store/slices/pageSlice.js";
 import { toggleActive } from "../../store/slices/toastSlice";
-import { ADD_UPSELL_ALL_PRODUCTS } from "../../utils/queries.js";
+import { SET_METAFIELDS } from "../../utils/queries.js";
 
 const img = "https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg";
 
@@ -33,7 +36,7 @@ export function EmptyStatePage() {
   const [openUpsell, setOpenUpsell] = useState(false);
   const [showBanner, setShowBanner] = useState(true);
 
-  const [addUpsellAllProducts] = useMutation(ADD_UPSELL_ALL_PRODUCTS);
+  const [addUpsellAllProducts] = useMutation(SET_METAFIELDS);
 
   const history = useHistory();
   const dispatch = useDispatch();
@@ -54,6 +57,7 @@ export function EmptyStatePage() {
   ) : null;
 
   const handleSelection = (resources) => {
+    dispatch(addRedirectionPage("/"));
     history.push("/results");
     setOpenProduct(false);
     setOpenCollection(false);

@@ -12,6 +12,7 @@ const upsellsSlice = createSlice({
       productLoading: false,
       collectionLoading: false,
       globalProductLoading: false,
+      resourceAlreadyExist: false,
     },
   },
   reducers: {
@@ -36,26 +37,23 @@ const upsellsSlice = createSlice({
       state.value = { ...state.value, collectionsIds: collectionsIds };
     },
     addProducts: (state, action) => {
-      console.log("action payload", action.payload);
       const newState = [...state.value.products, ...action.payload];
       const products = Array.from(new Set(newState.map((a) => a.id))).map(
         (id) => {
           return newState.find((a) => a.id === id);
         }
       );
+      state.value = { ...state.value, products: [...products] };
+    },
+    updateProductMetafield: (state, action) => {
+      const { productId, upsellId, upsellTitle } = action.payload;
+      const products = state.value.products;
+      const index = products.findIndex((item) => item.id === productId);
 
-      const filteredProducts = products.filter((item) =>
-        item?.tags?.includes("upsell")
-      );
+      products[index].metafield.value = upsellId;
+      products[index].metafield.reference.title = upsellTitle;
 
-      const productsSorted = filteredProducts.sort((a, b) => {
-        const dateA = new Date(a.metafield?.updatedAt);
-        const dateB = new Date(b.metafield?.updatedAt);
-        return dateB - dateA;
-      });
-
-      state.value = { ...state.value, products: [...productsSorted] };
-      console.log("added", productsSorted);
+      state.value = { ...state.value, products: [...products] };
     },
     removeProducts: (state, action) => {
       const products = state.value.products.filter(
@@ -69,6 +67,27 @@ const upsellsSlice = createSlice({
         (id) => {
           return newState.find((a) => a.id === id);
         }
+      );
+      state.value = { ...state.value, collections: [...collections] };
+    },
+    updateCollectionMetafield: (state, action) => {
+      const { collectionId, upsellId, upsellTitle } = action.payload;
+      const collections = state.value.collections;
+      const index = collections.findIndex((item) => item.id === collectionId);
+
+      collections[index].metafield.value = upsellId;
+      collections[index].metafield.reference.title = upsellTitle;
+
+      state.value = { ...state.value, collections: [...collections] };
+    },
+    removeCollectionsIds: (state, action) => {
+      state.value.collectionsIds = state.value.collectionsIds.filter(
+        (id) => !action.payload.includes(id)
+      );
+    },
+    removeCollections: (state, action) => {
+      const collections = state.value.collections.filter(
+        (item) => !action.payload.includes(item.id)
       );
       state.value = { ...state.value, collections: [...collections] };
     },
@@ -87,6 +106,9 @@ const upsellsSlice = createSlice({
     changeGlobalProductLoading: (state, action) => {
       state.value = { ...state.value, globalProductLoading: action.payload };
     },
+    updateResourceAlreadyExist: (state, action) => {
+      state.value = { ...state.value, resourceAlreadyExist: action.payload };
+    },
   },
 });
 
@@ -95,13 +117,18 @@ export const {
   addCollectionsIds,
   removeProductsIds,
   removeProducts,
+  removeCollectionsIds,
+  removeCollections,
   addProducts,
+  updateProductMetafield,
   addCollections,
+  updateCollectionMetafield,
   addGlobal,
   removeGlobalUpsellProduct,
   changeProductLoading,
   changeCollectionLoading,
   changeGlobalProductLoading,
+  updateResourceAlreadyExist,
 } = upsellsSlice.actions;
 
 export default upsellsSlice.reducer;

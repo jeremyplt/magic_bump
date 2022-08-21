@@ -32,12 +32,13 @@ function GetShopData() {
     useSelector((state) => state.app?.value.metafield?.value),
   ];
 
-  const { data: productData, loading: productLoading } = useQuery(
-    GET_PRODUCTS_BY_ID,
-    {
-      variables: { ids: productUpsells },
-    }
-  );
+  const {
+    data: productData,
+    loading: productLoading,
+    refetch: productRefetch,
+  } = useQuery(GET_PRODUCTS_BY_ID, {
+    variables: { ids: productUpsells },
+  });
 
   const { data: globalProductData, loading: globalProductLoading } = useQuery(
     GET_PRODUCTS_BY_ID,
@@ -46,12 +47,13 @@ function GetShopData() {
     }
   );
 
-  const { data: collectionData, loading: collectionLoading } = useQuery(
-    GET_COLLECTIONS_BY_ID,
-    {
-      variables: { ids: collectionUpsells },
-    }
-  );
+  const {
+    data: collectionData,
+    loading: collectionLoading,
+    refetch: collectionRefetch,
+  } = useQuery(GET_COLLECTIONS_BY_ID, {
+    variables: { ids: collectionUpsells },
+  });
 
   const shopState = useSelector((state) => state.shop.value);
   const dispatch = useDispatch();
@@ -79,11 +81,25 @@ function GetShopData() {
   }, [data]);
 
   useEffect(() => {
-    if (productData) dispatch(addProducts(productData.nodes));
+    if (productData) {
+      const metafields = productData.nodes.map((item) => item.metafield);
+      if (metafields.includes(null)) {
+        productRefetch();
+      } else {
+        dispatch(addProducts(productData.nodes));
+      }
+    }
   }, [productData]);
 
   useEffect(() => {
-    if (collectionData) dispatch(addCollections(collectionData.nodes));
+    if (collectionData) {
+      const metafields = collectionData.nodes.map((item) => item.metafield);
+      if (metafields.includes(null)) {
+        collectionRefetch();
+      } else {
+        dispatch(addCollections(collectionData.nodes));
+      }
+    }
   }, [collectionData]);
 
   useEffect(() => {

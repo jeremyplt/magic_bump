@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Page,
   Layout,
@@ -8,29 +8,49 @@ import {
   Card,
   Button,
   Icon,
+  TextStyle,
 } from "@shopify/polaris";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import { useHistory } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-
-import { addSelection } from "../../store/slices/selectionSlice";
+import { updateResourceAlreadyExist } from "../../store/slices/upsellsSlice";
+import {
+  addSelection,
+  removeSelection,
+} from "../../store/slices/selectionSlice";
 import { ProductsListUpsells } from "../lists/ProductsListUpsells";
-import { addPageType } from "../../store/slices/pageTypeSlice";
+import { addPageType, addRedirectionPage } from "../../store/slices/pageSlice";
 import { UndoMajor } from "@shopify/polaris-icons";
 
 function ProductsUpsellPage() {
   const [showBanner, setShowBanner] = useState(true);
   const [open, setOpen] = useState(false);
-  const [temporaryUpsells, setTemporaryUpsells] = useState([]);
 
-  const productUpsells = useSelector((state) => state.upsells.value.products);
+  const productsWithUpsell = useSelector(
+    (state) => state.upsells.value.productsIds
+  );
 
   const history = useHistory();
   const dispatch = useDispatch();
 
   const handleSelection = (resources) => {
-    setTemporaryUpsells([...resources.selection, ...temporaryUpsells]);
+    dispatch(updateResourceAlreadyExist(false));
+    dispatch(addRedirectionPage("/upsells"));
+    history.push("/results");
     setOpen(false);
+
+    const itemSelectedId = resources.selection
+      .map((product) => product.id)
+      .filter((id) => !productsWithUpsell.includes(id));
+
+    const itemsAlreadyExist = resources.selection
+      .map((product) => product.id)
+      .filter((id) => productsWithUpsell.includes(id));
+
+    if (itemsAlreadyExist.length > 0)
+      dispatch(updateResourceAlreadyExist(true));
+
+    dispatch(addSelection(itemSelectedId));
   };
 
   return (
@@ -46,7 +66,11 @@ function ProductsUpsellPage() {
       ]}
       primaryAction={{
         content: "Add Upsell",
-        onAction: () => setOpen(true),
+        onAction: () => {
+          setOpen(true);
+          dispatch(removeSelection());
+          dispatch(addPageType("products"));
+        },
       }}
       secondaryActions={
         <Button disabled>
@@ -95,19 +119,18 @@ function ProductsUpsellPage() {
 
         <Layout.Section>
           <Card>
-            {
-              <ProductsListUpsells
-                temporaryUpsells={temporaryUpsells}
-                setTemporaryUpsells={setTemporaryUpsells}
-              />
-            }
+            <ProductsListUpsells />
           </Card>
         </Layout.Section>
       </Layout>
       <PageActions
         primaryAction={{
           content: "Add Upsell",
-          onAction: () => setOpen(true),
+          onAction: () => {
+            setOpen(true);
+            dispatch(removeSelection());
+            dispatch(addPageType("products"));
+          },
         }}
       />
     </Page>

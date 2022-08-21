@@ -16,20 +16,19 @@ import ProductsListSkeleton from "../skeletons/ProductsListSkeleton";
 import {
   removeProducts,
   removeProductsIds,
-  addProductsIds,
-  addProducts,
+  updateProductMetafield as updateProductMetafieldState,
 } from "../../store/slices/upsellsSlice";
+
 import {
   REMOVE_METAFIELD,
   REMOVE_TAG_TO_PRODUCT,
-  ADD_PRODUCT_METAFIELD,
-  ADD_TAG_TO_PRODUCT,
+  UPDATE_PRODUCT_METAFIELD,
 } from "../../utils/queries";
 
-export function ProductsListUpsells({ temporaryUpsells, setTemporaryUpsells }) {
+export function ProductsListUpsells() {
   const [selectedItems, setSelectedItems] = useState([]);
-  const [productSetup, setProductSetUp] = useState("");
-  const [openUpsell, setOpenUpsell] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [productUpdate, setProductUpdate] = useState("");
 
   const productUpsells = useSelector((state) => state.upsells.value.products);
   const productLoading = useSelector(
@@ -38,107 +37,95 @@ export function ProductsListUpsells({ temporaryUpsells, setTemporaryUpsells }) {
 
   const [removeMetafield] = useMutation(REMOVE_METAFIELD);
   const [removeTagToProduct] = useMutation(REMOVE_TAG_TO_PRODUCT);
-  const [addProductMetafield] = useMutation(ADD_PRODUCT_METAFIELD);
-  const [addTagToProduct] = useMutation(ADD_TAG_TO_PRODUCT);
-
-  const itemToDisplay = [...temporaryUpsells, ...productUpsells];
+  const [updateProductMetafield] = useMutation(UPDATE_PRODUCT_METAFIELD);
 
   const dispatch = useDispatch();
 
   const promotedBulkActions = [
     {
       content: "Bulk delete upsells",
+      onAction: () => {
+        const itemsToDelete = productUpsells.filter((item) =>
+          selectedItems.includes(item.id)
+        );
+        removeUpsells(itemsToDelete);
+      },
     },
   ];
 
   const removeUpsells = (items) => {
     const metafields = items.map((item) => item.metafield.id);
-    removeMetafield({
-      variables: {
-        input: {
-          id: metafields[0],
-        },
-      },
-    });
     const ids = items.map((item) => item.id);
-    removeTagToProduct({
-      variables: {
-        id: ids[0],
-        tags: ["upsell"],
-      },
+
+    metafields.forEach((meta) => {
+      removeMetafield({
+        variables: {
+          input: {
+            id: meta,
+          },
+        },
+      });
     });
+
+    ids.forEach((id) => {
+      removeTagToProduct({
+        variables: {
+          id: id,
+          tags: ["upsell"],
+        },
+      });
+    });
+
     dispatch(removeProducts(ids));
     dispatch(removeProductsIds(ids));
+    setSelectedItems([]);
   };
 
-  const saveUpsell = async (resources) => {
-    const upsell = resources.selection[0];
+  const updateUpsell = (resources) => {
+    const upsellId = resources.selection[0].id;
+    const upsellTitle = resources.selection[0].title;
+    const productId = productUpdate.id;
 
-    // Add the tag to the product
-    addTagToProduct({
-      variables: {
-        id: productSetup,
-        tags: ["upsell"],
-      },
-    });
-
-    // Add the metafield to the product
-    addProductMetafield({
+    updateProductMetafield({
       variables: {
         input: {
-          id: productSetup,
+          id: productId,
           metafields: [
             {
-              namespace: "product",
-              key: "upsell",
-              value: upsell.id,
-              type: "product_reference",
+              id: productUpdate.metafield.id,
+              value: upsellId,
             },
           ],
         },
       },
     });
 
-    const product = temporaryUpsells[0];
-    product.tags = ["upsell"];
-    const date = new Date();
-    product.metafield = {
-      updatedAt: date.toISOString(),
-      reference: { title: upsell.title },
-    };
-
-    // Add the id to the state
-    dispatch(addProductsIds([productSetup]));
-
-    // Add the product to the state
-    dispatch(addProducts([product]));
-
-    // Remove the product from the temporary state
-    const cleanTemporaryUpsells = temporaryUpsells.filter(
-      (item) => item.id !== productSetup
+    dispatch(
+      updateProductMetafieldState({
+        productId,
+        upsellId,
+        upsellTitle,
+      })
     );
-    setTemporaryUpsells(cleanTemporaryUpsells);
-
-    setOpenUpsell(false);
   };
 
   return (
     <React.Fragment>
-      {openUpsell && (
+      {open && (
         <ResourcePicker
           resourceType="Product"
           showVariants={false}
           allowMultiple={false}
-          open={openUpsell}
-          onSelection={(resources) => saveUpsell(resources)}
-          onCancel={() => setOpenUpsell(false)}
+          open={open}
+          onSelection={(resources) => updateUpsell(resources)}
+          onCancel={() => setOpen(false)}
         />
       )}
-      {productUpsells && (
+      {productUpsells.length > 0 && (
         <ResourceList
           showHeader
           resourceName={{ singular: "Product", plural: "Products" }}
-          items={itemToDisplay}
+          items={productUpsells}
           selectedItems={selectedItems}
           onSelectionChange={setSelectedItems}
           promotedBulkActions={promotedBulkActions}
@@ -188,18 +175,17 @@ export function ProductsListUpsells({ temporaryUpsells, setTemporaryUpsells }) {
                               <span>{item.metafield?.reference?.title}</span>{" "}
                             </div>
                           )}
-
-                          {!item.metafield && (
-                            <Button
-                              onClick={() => {
-                                setOpenUpsell(true);
-                                setProductSetUp(item.id);
-                              }}
-                            >
-                              Add Upsell
-                            </Button>
-                          )}
                         </TextContainer>
+                      </Stack.Item>
+                      <Stack.Item>
+                        <Button
+                          onClick={() => {
+                            setProductUpdate(item);
+                            setOpen(true);
+                          }}
+                        >
+                          Update
+                        </Button>
                       </Stack.Item>
                       <Stack.Item>
                         <Button
@@ -218,9 +204,14 @@ export function ProductsListUpsells({ temporaryUpsells, setTemporaryUpsells }) {
           }}
         />
       )}
-      {productLoading && !productUpsells && (
-        <div style={{ padding: 20 }}>
+      {productLoading && productUpsells.length === 0 && (
+        <div style={{ padding: "25px" }}>
           <ProductsListSkeleton />
+        </div>
+      )}
+      {productUpsells.length === 0 && !productLoading && (
+        <div style={{ padding: 20 }}>
+          There is currently no product upsell set up.
         </div>
       )}
     </React.Fragment>

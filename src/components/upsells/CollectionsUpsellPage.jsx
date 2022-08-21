@@ -13,9 +13,13 @@ import { useQuery } from "@apollo/client";
 import { GET_COLLECTIONS_BY_ID } from "../../utils/queries";
 import { useSelector, useDispatch } from "react-redux";
 import ProductsListSkeleton from "../skeletons/ProductsListSkeleton";
-import { addSelection } from "../../store/slices/selectionSlice";
+import {
+  addSelection,
+  removeSelection,
+} from "../../store/slices/selectionSlice";
 import { CollectionsListUpsells } from "../lists/CollectionsListUpsells";
-import { addPageType } from "../../store/slices/pageTypeSlice";
+import { addPageType, addRedirectionPage } from "../../store/slices/pageSlice";
+import { updateResourceAlreadyExist } from "../../store/slices/upsellsSlice";
 
 function CollectionsUpsellPage() {
   const [showBanner, setShowBanner] = useState(true);
@@ -24,21 +28,31 @@ function CollectionsUpsellPage() {
   const collectionUpsells = useSelector(
     (state) => state.upsells.value.collections
   );
-
-  const { data, loading, error } = useQuery(GET_COLLECTIONS_BY_ID, {
-    variables: { ids: collectionUpsells },
-  });
+  const collectionsWithUpsell = useSelector(
+    (state) => state.upsells.value.collectionsIds
+  );
 
   const history = useHistory();
   const dispatch = useDispatch();
 
   const handleSelection = (resources) => {
+    dispatch(updateResourceAlreadyExist(false));
+    dispatch(addRedirectionPage("/upsells"));
     history.push("/results");
     setOpen(false);
-    dispatch(addPageType("collections"));
-    dispatch(
-      addSelection(resources.selection.map((collection) => collection.id))
-    );
+
+    const itemSelectedId = resources.selection
+      .map((collection) => collection.id)
+      .filter((id) => !collectionsWithUpsell.includes(id));
+
+    const itemsAlreadyExist = resources.selection
+      .map((collection) => collection.id)
+      .filter((id) => collectionsWithUpsell.includes(id));
+
+    if (itemsAlreadyExist.length > 0)
+      dispatch(updateResourceAlreadyExist(true));
+
+    dispatch(addSelection(itemSelectedId));
   };
 
   return (
@@ -48,7 +62,7 @@ function CollectionsUpsellPage() {
         {
           content: "Upsells",
           onAction: () => {
-            history.goBack();
+            history.push("/upsells");
           },
         },
       ]}
@@ -65,7 +79,6 @@ function CollectionsUpsellPage() {
         resourceType="Collection"
         showVariants={false}
         open={open}
-        // actionVerb={ResourcePicker.ActionVerb.Select}
         onSelection={(resources) => handleSelection(resources)}
         onCancel={() => setOpen(false)}
       />
@@ -99,19 +112,18 @@ function CollectionsUpsellPage() {
 
         <Layout.Section>
           <Card>
-            {data && <CollectionsListUpsells data={data} />}
-            {loading && (
-              <div style={{ padding: "25px" }}>
-                <ProductsListSkeleton />
-              </div>
-            )}
+            <CollectionsListUpsells />
           </Card>
         </Layout.Section>
       </Layout>
       <PageActions
         primaryAction={{
           content: "Add Upsells",
-          onAction: () => setOpen(true),
+          onAction: () => {
+            setOpen(true);
+            dispatch(removeSelection());
+            dispatch(addPageType("collections"));
+          },
         }}
       />
     </Page>

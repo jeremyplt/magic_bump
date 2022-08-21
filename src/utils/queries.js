@@ -8,7 +8,6 @@ const GET_PRODUCTS_BY_ID = gql`
         handle
         descriptionHtml
         id
-        tags
         images(first: 1) {
           edges {
             node {
@@ -29,7 +28,6 @@ const GET_PRODUCTS_BY_ID = gql`
         metafield(namespace: "product", key: "upsell") {
           id
           value
-          updatedAt
           reference {
             ... on Product {
               title
@@ -47,10 +45,11 @@ const GET_COLLECTIONS_BY_ID = gql`
       ... on Collection {
         title
         id
-        metafield(namespace: "product", key: "upsell") {
+        metafield(namespace: "collection", key: "upsell") {
           id
-          value
-          updatedAt
+          key
+          type
+          namespace
           reference {
             ... on Product {
               title
@@ -66,42 +65,59 @@ const GET_COLLECTIONS_BY_ID = gql`
     }
   }
 `;
+
 const ADD_PRODUCT_METAFIELD = gql`
   mutation ($input: ProductInput!) {
     productUpdate(input: $input) {
       product {
-        title
-        handle
-        descriptionHtml
-        id
+        metafields(first: 100) {
+          edges {
+            node {
+              namespace
+              key
+              value
+            }
+          }
+        }
         tags
-        images(first: 1) {
-          edges {
-            node {
-              id
-              originalSrc
-              altText
-            }
-          }
-        }
-        variants(first: 1) {
-          edges {
-            node {
-              price
-              id
-            }
-          }
-        }
+      }
+    }
+  }
+`;
+
+const UPDATE_PRODUCT_METAFIELD = gql`
+  mutation ($input: ProductInput!) {
+    productUpdate(input: $input) {
+      product {
         metafield(namespace: "product", key: "upsell") {
           id
+          namespace
+          key
           value
-          updatedAt
-          reference {
-            ... on Product {
-              title
-            }
-          }
         }
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
+
+const UPDATE_COLLECTION_METAFIELD = gql`
+  mutation ($input: CollectionInput!) {
+    collectionUpdate(input: $input) {
+      collection {
+        metafield(namespace: "collection", key: "upsell") {
+          id
+          namespace
+          key
+          value
+        }
+      }
+      userErrors {
+        field
+        message
       }
     }
   }
@@ -153,7 +169,7 @@ const REMOVE_TAG_TO_PRODUCT = gql`
   }
 `;
 
-const ADD_UPSELL_ALL_PRODUCTS = gql`
+const SET_METAFIELDS = gql`
   mutation ($metafields: [MetafieldsSetInput!]!) {
     metafieldsSet(metafields: $metafields) {
       metafields {
@@ -273,11 +289,13 @@ export {
   GET_SHOP_INFOS,
   GET_PRODUCTS_BY_ID,
   GET_ALL_PRODUCTS_BY_ID,
+  UPDATE_PRODUCT_METAFIELD,
   REMOVE_METAFIELD,
   GET_COLLECTIONS_BY_ID,
   ADD_PRODUCT_METAFIELD,
   ADD_COLLECTION_METAFIELD,
   ADD_TAG_TO_PRODUCT,
   REMOVE_TAG_TO_PRODUCT,
-  ADD_UPSELL_ALL_PRODUCTS,
+  UPDATE_COLLECTION_METAFIELD,
+  SET_METAFIELDS,
 };
