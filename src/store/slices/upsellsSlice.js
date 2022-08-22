@@ -12,6 +12,8 @@ const upsellsSlice = createSlice({
       productLoading: false,
       collectionLoading: false,
       globalProductLoading: false,
+      refetchCollection: false,
+      refetchProduct: false,
       resourceAlreadyExist: false,
     },
   },
@@ -37,7 +39,7 @@ const upsellsSlice = createSlice({
       state.value = { ...state.value, collectionsIds: collectionsIds };
     },
     addProducts: (state, action) => {
-      const newState = [...state.value.products, ...action.payload];
+      const newState = [...action.payload, ...state.value.products];
       const products = Array.from(new Set(newState.map((a) => a.id))).map(
         (id) => {
           return newState.find((a) => a.id === id);
@@ -62,7 +64,7 @@ const upsellsSlice = createSlice({
       state.value = { ...state.value, products: [...products] };
     },
     addCollections: (state, action) => {
-      const newState = [...state.value.collections, ...action.payload];
+      const newState = [...action.payload, ...state.value.collections];
       const collections = Array.from(new Set(newState.map((a) => a.id))).map(
         (id) => {
           return newState.find((a) => a.id === id);
@@ -79,6 +81,12 @@ const upsellsSlice = createSlice({
       collections[index].metafield.reference.title = upsellTitle;
 
       state.value = { ...state.value, collections: [...collections] };
+    },
+    updateRefetchCollection: (state, action) => {
+      state.value = { ...state.value, refetchCollection: action.payload };
+    },
+    updateRefetchProduct: (state, action) => {
+      state.value = { ...state.value, refetchProduct: action.payload };
     },
     removeCollectionsIds: (state, action) => {
       state.value.collectionsIds = state.value.collectionsIds.filter(
@@ -123,6 +131,8 @@ export const {
   updateProductMetafield,
   addCollections,
   updateCollectionMetafield,
+  updateRefetchCollection,
+  updateRefetchProduct,
   addGlobal,
   removeGlobalUpsellProduct,
   changeProductLoading,

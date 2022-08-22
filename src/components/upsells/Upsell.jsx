@@ -32,6 +32,7 @@ import {
 import {
   removeGlobalUpsellProduct,
   addGlobal,
+  updateResourceAlreadyExist,
 } from "../../store/slices/upsellsSlice";
 
 const img = "https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg";
@@ -43,6 +44,7 @@ function UpsellPage() {
   const [openCollection, setOpenCollection] = useState(false);
   const [productLoader, setProductLoader] = useState(false);
   const [collectionLoader, setCollectionLoader] = useState(false);
+  const [resourcesType, setResourcesType] = useState("");
 
   const [addUpsellAllProducts] = useMutation(SET_METAFIELDS);
   const [removeMetafield] = useMutation(REMOVE_METAFIELD);
@@ -83,15 +85,38 @@ function UpsellPage() {
   ];
 
   const handleSelection = (resources) => {
-    history.push("/results");
     setOpenProduct(false);
     setOpenAllProduct(false);
     setOpenCollection(false);
-    dispatch(addSelection(resources.selection.map((product) => product.id)));
+
+    dispatch(updateResourceAlreadyExist(false));
+    dispatch(addRedirectionPage("/upsells"));
+    history.push("/results");
+
+    const itemSelectedId = resources.selection
+      .map((item) => item.id)
+      .filter((id) =>
+        resourcesType === "product"
+          ? !productsIds.includes(id)
+          : !collectionsIds.includes(id)
+      );
+
+    const itemsAlreadyExist = resources.selection
+      .map((item) => item.id)
+      .filter((id) =>
+        resourcesType === "product"
+          ? productsIds.includes(id)
+          : collectionsIds.includes(id)
+      );
+
+    if (itemsAlreadyExist.length > 0)
+      dispatch(updateResourceAlreadyExist(true));
+
+    dispatch(addSelection(itemSelectedId));
   };
 
   const saveUpsellAllProducts = async (resources) => {
-    dispatch(addGlobal([resources.selection[0]]));
+    // dispatch(addGlobal([resources.selection[0]]));
     const value = resources.selection[0].id;
     const payload = await addUpsellAllProducts({
       variables: {
@@ -106,8 +131,8 @@ function UpsellPage() {
         ],
       },
     });
-    const id = payload.data.metafieldsSet.metafields[0].id;
-    dispatch(addGlobalUpsell({ value, id }));
+    // const id = payload.data.metafieldsSet.metafields[0].id;
+    // dispatch(addGlobalUpsell({ value, id }));
     setOpenAllProduct(false);
   };
 
@@ -136,9 +161,6 @@ function UpsellPage() {
     else if (collectionLoading) setCollectionLoader(true);
   }, [productLoading, collectionLoading]);
 
-  //TODO: Forcer le rerender avec un useeffect quand le state change? Bizarre. Problem est que le state ce mets pas correctement a jour. Le state
-  // change mais garde la donne d'avant, refetch?
-
   return (
     <Page fullWidth title="Your Upsells">
       <div style={{ marginBottom: "20px" }}>
@@ -147,7 +169,10 @@ function UpsellPage() {
             resourceType="Product"
             showVariants={false}
             open={true}
-            onSelection={(resources) => handleSelection(resources)}
+            onSelection={(resources) => {
+              setResourcesType("product");
+              handleSelection(resources);
+            }}
             onCancel={() => setOpenProduct(false)}
           />
         )}
@@ -166,7 +191,10 @@ function UpsellPage() {
             resourceType="Collection"
             showVariants={false}
             open={true}
-            onSelection={(resources) => handleSelection(resources)}
+            onSelection={(resources) => {
+              setResourcesType("collection");
+              handleSelection(resources);
+            }}
             onCancel={() => setOpenCollection(false)}
           />
         )}

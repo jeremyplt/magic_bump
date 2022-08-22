@@ -18,6 +18,8 @@ import { removeAllSelectedUpsells } from "../../store/slices/selectedUpsellsSlic
 import {
   addProductsIds,
   addCollectionsIds,
+  updateRefetchCollection,
+  updateRefetchProduct,
 } from "../../store/slices/upsellsSlice";
 import { toggleActive } from "../../store/slices/toastSlice";
 import {
@@ -67,6 +69,7 @@ const ResultPage = () => {
         });
       }
       dispatch(addCollectionsIds(Object.keys(selectedUpsells)));
+      dispatch(updateRefetchCollection(true));
       //TODO: Update le state en ajoutant le produit?
     } else {
       for (const key in selectedUpsells) {
@@ -93,6 +96,7 @@ const ResultPage = () => {
         });
       }
       dispatch(addProductsIds(Object.keys(selectedUpsells)));
+      dispatch(updateRefetchProduct(true));
     }
   }
 

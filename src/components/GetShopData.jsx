@@ -13,6 +13,9 @@ import {
   changeProductLoading,
   changeCollectionLoading,
   changeGlobalProductLoading,
+  updateRefetchCollection,
+  updateCollectionMetafield,
+  updateRefetchProduct,
 } from "../store/slices/upsellsSlice";
 import {
   GET_SHOP_INFOS,
@@ -31,6 +34,8 @@ function GetShopData() {
   const globalUpsellValue = [
     useSelector((state) => state.app?.value.metafield?.value),
   ];
+  const refetchCollection = upsells?.refetchCollection;
+  const refetchProduct = upsells?.refetchProduct;
 
   const {
     data: productData,
@@ -92,6 +97,7 @@ function GetShopData() {
   }, [productData]);
 
   useEffect(() => {
+    console.log("New collection data fron getShop", collectionData);
     if (collectionData) {
       const metafields = collectionData.nodes.map((item) => item.metafield);
       if (metafields.includes(null)) {
@@ -117,6 +123,20 @@ function GetShopData() {
   useEffect(() => {
     dispatch(changeGlobalProductLoading(globalProductLoading));
   }, [globalProductLoading]);
+
+  useEffect(() => {
+    if (refetchCollection) {
+      collectionRefetch();
+      dispatch(updateRefetchCollection(false));
+    }
+  }, [refetchCollection]);
+
+  useEffect(() => {
+    if (refetchProduct) {
+      productRefetch();
+      dispatch(updateRefetchProduct(false));
+    }
+  }, [refetchProduct]);
 
   return;
 }
