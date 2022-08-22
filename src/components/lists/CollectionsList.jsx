@@ -65,7 +65,6 @@ export function CollectionsList({ data }) {
       <ResourcePicker
         resourceType="Product"
         open={open}
-        // actionVerb={ResourcePicker.ActionVerb.Select}
         selectMultiple={false}
         onSelection={(resources) => {
           setOpen(false);

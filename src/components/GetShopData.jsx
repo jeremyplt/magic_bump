@@ -45,12 +45,13 @@ function GetShopData() {
     variables: { ids: productUpsells },
   });
 
-  const { data: globalProductData, loading: globalProductLoading } = useQuery(
-    GET_PRODUCTS_BY_ID,
-    {
-      variables: { ids: globalUpsellValue },
-    }
-  );
+  const {
+    data: globalProductData,
+    loading: globalProductLoading,
+    refetch: globalProductRefetch,
+  } = useQuery(GET_PRODUCTS_BY_ID, {
+    variables: { ids: globalUpsellValue },
+  });
 
   const {
     data: collectionData,
@@ -97,7 +98,6 @@ function GetShopData() {
   }, [productData]);
 
   useEffect(() => {
-    console.log("New collection data fron getShop", collectionData);
     if (collectionData) {
       const metafields = collectionData.nodes.map((item) => item.metafield);
       if (metafields.includes(null)) {
@@ -110,6 +110,7 @@ function GetShopData() {
 
   useEffect(() => {
     if (globalProductData) dispatch(addGlobal(globalProductData.nodes));
+    else globalProductRefetch();
   }, [globalProductData]);
 
   useEffect(() => {

@@ -49,7 +49,6 @@ const ResultPage = () => {
   let isDisabled = Object.keys(selectedUpsells).length > 0 ? false : true;
 
   function saveUpsells() {
-    console.log("selectedUpsells", selectedUpsells);
     if (pageType === "collections") {
       for (const key in selectedUpsells) {
         addCollectionMetafield({
@@ -70,7 +69,6 @@ const ResultPage = () => {
       }
       dispatch(addCollectionsIds(Object.keys(selectedUpsells)));
       dispatch(updateRefetchCollection(true));
-      //TODO: Update le state en ajoutant le produit?
     } else {
       for (const key in selectedUpsells) {
         addProductMetafield({

@@ -116,9 +116,9 @@ function UpsellPage() {
   };
 
   const saveUpsellAllProducts = async (resources) => {
-    // dispatch(addGlobal([resources.selection[0]]));
+    dispatch(addGlobal([resources.selection[0]]));
     const value = resources.selection[0].id;
-    const payload = await addUpsellAllProducts({
+    const metafield = addUpsellAllProducts({
       variables: {
         metafields: [
           {
@@ -131,8 +131,6 @@ function UpsellPage() {
         ],
       },
     });
-    // const id = payload.data.metafieldsSet.metafields[0].id;
-    // dispatch(addGlobalUpsell({ value, id }));
     setOpenAllProduct(false);
   };
 
@@ -372,7 +370,7 @@ function UpsellPage() {
                 title={collectionUpsells.length > 0 && "Collection"}
               >
                 {collectionUpsells.length > 0 && (
-                  <ResourceList // Defines your resource list component
+                  <ResourceList
                     resourceName={{ singular: "Product", plural: "Products" }}
                     items={collectionUpsells.slice(0, 4)}
                     renderItem={(item) => {

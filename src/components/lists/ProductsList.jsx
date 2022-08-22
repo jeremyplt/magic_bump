@@ -59,7 +59,7 @@ export function ProductsList({ data }) {
 
   return (
     <React.Fragment>
-      <ResourcePicker // Resource picker component
+      <ResourcePicker
         resourceType="Product"
         showVariants={false}
         open={open}
