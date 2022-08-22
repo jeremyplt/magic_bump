@@ -136,6 +136,9 @@ function UpsellPage() {
     else if (collectionLoading) setCollectionLoader(true);
   }, [productLoading, collectionLoading]);
 
+  //TODO: Forcer le rerender avec un useeffect quand le state change? Bizarre. Problem est que le state ce mets pas correctement a jour. Le state
+  // change mais garde la donne d'avant, refetch?
+
   return (
     <Page fullWidth title="Your Upsells">
       <div style={{ marginBottom: "20px" }}>

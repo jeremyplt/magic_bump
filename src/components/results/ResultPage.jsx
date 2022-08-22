@@ -67,6 +67,7 @@ const ResultPage = () => {
         });
       }
       dispatch(addCollectionsIds(Object.keys(selectedUpsells)));
+      //TODO: Update le state en ajoutant le produit?
     } else {
       for (const key in selectedUpsells) {
         addProductMetafield({

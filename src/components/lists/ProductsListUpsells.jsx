@@ -107,6 +107,8 @@ export function ProductsListUpsells() {
         upsellTitle,
       })
     );
+
+    setOpen(false);
   };
 
   return (

@@ -100,6 +100,8 @@ export function CollectionsListUpsells({ data }) {
         upsellTitle,
       })
     );
+
+    setOpen(false);
   };
 
   return (
